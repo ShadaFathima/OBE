@@ -4,16 +4,15 @@ from io import BytesIO
 from app.models.classifier import load_model, predict_student_category
 from app.services.analysis import preprocess_excel, create_performance_labels, get_weak_cos
 from app.utils.co_mapping import co_definitions, question_to_co
-from app.services.materials import get_combined_study_material
-from app.services.improvement import suggest_improvement_strategy
-from app.auth import require_role, UserRole  # Import your auth roles and dependency
+from app.services.improvement import suggest_improvement_strategy  # only this import now
+from app.auth import require_role, UserRole
 
 router = APIRouter()
 
 @router.post("/analyze/")
 async def analyze_and_predict(
     file: UploadFile = File(...),
-    user=Depends(require_role(UserRole.student, UserRole.teacher, UserRole.admin))  # Roles allowed to access:
+    user=Depends(require_role(UserRole.student, UserRole.teacher, UserRole.admin))
 ):
     contents = await file.read()
     df = pd.read_excel(BytesIO(contents))
@@ -21,7 +20,7 @@ async def analyze_and_predict(
     # Step 1: Preprocess
     pivot_df = preprocess_excel(df)
 
-    # Step 2: Label performance categories (for training or backup logic)
+    # Step 2: Label performance categories
     labeled_df = create_performance_labels(pivot_df)
 
     # Step 3: Load model & predict
@@ -49,20 +48,12 @@ async def analyze_and_predict(
         }
 
         for co in weak:
-            # Fetch materials for the CO
-            materials = get_combined_study_material(co)
-
-            reco = {
+            reco = suggest_improvement_strategy(co)
+            feedback["recommendations"].append({
                 "co": co,
                 "definition": co_definitions.get(co, "N/A"),
-                "strategy": suggest_improvement_strategy(co),
-                "resources": [
-                    f"https://www.geeksforgeeks.org/tag/{co.lower()}/",
-                    f"https://www.geeksforgeeks.org/search/?q={co_definitions.get(co, '').replace(' ', '+')}"
-                ],
-                "materials": materials  # add the fetched materials here
-            }
-            feedback["recommendations"].append(reco)
+                **reco  # unpack summary, source, videos, strategy etc
+            })
 
         feedback_list.append(feedback)
 

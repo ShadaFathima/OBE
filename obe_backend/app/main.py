@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import predict, materials, upload
-from app.services.materials import get_combined_study_material
+from app.services.improvement import get_combined_study_material
 
 import os
 from dotenv import load_dotenv
@@ -33,8 +33,7 @@ def read_root():
 
 @app.get("/api/materials/", name="get_combined_materials")
 def get_combined_materials(co_topic: str):
-    youtube_api_key = os.getenv("YOUTUBE_API_KEY")
-    return get_combined_study_material(co_topic, youtube_api_key)
+    return get_combined_study_material(co_topic)
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
