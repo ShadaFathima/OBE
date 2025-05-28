@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import './App.css';
+
+import TeacherLogin from './pages/TeacherLogin';
+import Homepage from './pages/Homepage';
+import StudentLogin from './pages/StudentLogin'; 
+import StudentDashboard from './pages/StudentDashboard';
+import StudentDashboardView from './pages/StudentDashboardView';
+import StudentPerformance from './pages/StudentPerformance';
+import TeacherProfile from './pages/TeacherProfile';
+import TeacherDashboard from './pages/TeacherDashboard';
+import AuthorityLogin from './pages/AuthorityLogin';
+import TeacherEnhancement from './pages/TeacherEnhancement';
+import Signin from './pages/Signin';
+
+import Speedometer from './components/Speedometer';
+import Loader from './components/Loader';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="loading-screen" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#1E2E50'
+      }}>
+        <Loader />
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<Homepage />} />
+      <Route path="/teacherlogin" element={<TeacherLogin />} />
+      <Route path="/studentlogin" element={<StudentLogin />} />
+      <Route path="/studentdashboard" element={<StudentDashboard />} />
+      <Route path="/studentdashboardview" element={<StudentDashboardView />} />
+      <Route path="/studentperformance" element={<StudentPerformance />} />
+      <Route path="/teacherprofile" element={<TeacherProfile />} />
+      <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+      <Route path="/authoritylogin" element={<AuthorityLogin />} />
+      <Route path="/teacherenhancement" element={<TeacherEnhancement />} />
+      <Route path="/signin" element={<Signin />} />
+      <Route path="/speedometer" element={<Speedometer value={741} />} />
+      <Route path="/loader" element={<Loader />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;

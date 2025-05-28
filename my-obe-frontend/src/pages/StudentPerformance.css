@@ -1,0 +1,118 @@
+.student-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f1f0ff;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 200px;
+  background-color: #1a1446;
+  color: white;
+  padding: 20px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.sidebar ul li a .icon {
+  margin-right: 10px;
+}
+
+.sidebar ul li.active,
+.sidebar ul li.active a,
+.sidebar ul li a:hover {
+  background-color: white;
+  color: #1a1446;
+  border-radius: 20px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 40px;
+  background-color: #f8f8ff;
+  overflow-y: auto;
+}
+
+.main-content h2 {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.title {
+  color: #2d2a7f;
+  margin-bottom: 30px;
+  font-size: 20px;
+}
+
+.section {
+  margin-bottom: 40px; /* More space between sections */
+}
+
+.section h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-align: left;
+  color: #2d2a7f;
+}
+
+.doc-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.doc-card {
+  background-color: #eceaff;
+  padding: 10px;
+  border-radius: 8px;
+  width: 250px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.doc-card h4 {
+  color: #2d2a7f;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.doc-card p {
+  font-size: 12px;
+  color: #333;
+}
+
+.doc-card a {
+  color: #4e4eff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.video-thumbnails {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

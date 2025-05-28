@@ -1,0 +1,94 @@
+/* SignIn.css */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.signin-container {
+  height: 100vh;
+  background: #1f2a44;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.signin-card {
+  width: 800px;
+  height: 500px;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.signin-left {
+  flex: 1;
+  background: #f3f3f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signin-left img {
+  width: 90%;
+  height: auto;
+}
+
+.signin-right {
+  flex: 1;
+  padding: 40px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
+
+.signin-right h2 {
+  margin-bottom: 30px;
+  color: #1f2a44;
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-bottom: 5px;
+  font-size: 20px;
+  color: #333;
+  text-align: left;
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  
+}
+
+form input {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid #aaa;
+  outline: none;
+  font-size: 14px;
+}
+
+form button {
+  background-color: #1f2a44;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background-color: #31456a;
+}
