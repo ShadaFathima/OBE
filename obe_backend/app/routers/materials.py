@@ -1,27 +1,26 @@
-from fastapi import APIRouter, Query, Depends
-from app.services.materials import get_combined_study_material
-from app.services.improvement import suggest_improvement_strategy
-from app.auth import require_role, UserRole  # Import your auth roles and dependency
+from fastapi import APIRouter, Query
+from app.services.improvement import suggest_improvement_strategy, get_combined_study_material
+from app.utils.co_mapping import co_definitions
 
 router = APIRouter()
 
 @router.get("/materials/")
 def get_materials(
-    co_topic: str = Query(..., description="Course Outcome Topic"),
-    user=Depends(require_role(UserRole.student, UserRole.teacher, UserRole.admin))  # Roles allowed to access
+    co_topic: str = Query(..., description="Course Outcome Topic (e.g., CO1, CO2)")
 ):
     """
-    Get combined study materials including Wikipedia summary,
-    YouTube videos, and personalized study recommendations for the given topic.
+    Get combined study materials for the given CO topic.
     """
-    return get_combined_study_material(co_topic)
+    # Use CO description if co_topic is a CO code
+    topic_text = co_definitions.get(co_topic.upper(), co_topic)
+    return get_combined_study_material(topic_text)
 
-@router.get("/strategies/")
-def get_strategies(
-    co_topic: str = Query(..., description="Course Outcome Topic"),
-    user=Depends(require_role(UserRole.student, UserRole.teacher, UserRole.admin))  # Roles allowed to access
+@router.get("/improvement/")
+def get_improvement(
+    co_code: str = Query(..., description="Course Outcome Code (e.g., CO1, CO2)")
 ):
     """
-    Get suggested improvement strategies for the given topic.
+    Get suggested improvement strategies for the given CO.
+    This internally fetches combined study materials too.
     """
-    return {"strategies": suggest_improvement_strategy(co_topic)}
+    return suggest_improvement_strategy(co_code.upper())
