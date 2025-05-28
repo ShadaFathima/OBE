@@ -1,54 +1,32 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+
+# 1. Load dataset
+data = pd.read_csv('./app/data/mock_student_data.csv')
+# 2. Select features and target
+features = ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6', 'CO_Avg']
+X = data[features]
+
+# 3. Encode target variable
+le = LabelEncoder()
+y = le.fit_transform(data['Category'])
+
+# 4. Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 5. Train a classifier
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train, y_train)
+
+# 6. Predict and evaluate
+y_pred = clf.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Classification Report:\n", classification_report(y_test, y_pred, target_names=le.classes_))
+
+# Optional: Save the model and label encoder for later use
 import joblib
-from fastapi import APIRouter, UploadFile, File
-import os
-from app.models.classifier import load_model, predict_student_category
-
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'student_performance_model.pkl'))
-
-def train_model(train_csv_path='app/data/train.csv'):
-    df = pd.read_csv(train_csv_path)
-
-    X = df[[col for col in df.columns if col.startswith('CO')]]
-    y = df['Performance']
-
-    # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-
-    # Evaluate
-    y_pred = model.predict(X_test)
-    print(classification_report(y_test, y_pred))
-    # ✅ Ensure 'models/' directory exists
-    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-
-    # Save the trained model
-    joblib.dump(model, MODEL_PATH)
-
-    print(f"Model trained and saved at {MODEL_PATH}")
-
-def train_model_from_dataframe(df: pd.DataFrame):
-    X = df[[col for col in df.columns if col.startswith('CO')]]
-    y = df['Performance']
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-
-    y_pred = model.predict(X_test)
-
-    # ✅ Ensure 'models/' directory exists
-    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-
-    joblib.dump(model, MODEL_PATH)
-
-    return {
-        "train_samples": len(df),
-        "classification_report": classification_report(y_test, y_pred, output_dict=True)
-    }
+joblib.dump(clf, './app/models/student_performance_model.pkl')
+joblib.dump(le, './app/models/label_encoder.pkl')
