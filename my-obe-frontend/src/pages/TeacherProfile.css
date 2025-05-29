@@ -1,0 +1,125 @@
+/* Main container */
+.profile-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f4ff;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #0b0b3b;
+  padding: 20px 10px;
+  border-radius: 20px 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  color: white;
+  
+}
+
+
+
+.logo {
+  margin-bottom: 40px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  gap: 10px;
+  color: white;
+  transition: 0.3s ease;
+}
+
+.menu li.active,
+.menu li:hover {
+  background-color: white;
+  color: #0b0b3b;
+}
+
+.icon {
+  font-size: 1rem;
+}
+
+/* Profile card */
+.profile-card {
+  background-color: white;
+  margin: auto;
+  padding: 30px;
+  width: 400px;
+  height: 350px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-img {
+  margin-bottom: 30px;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background-color: #b8c7e0;
+  position: relative;
+}
+
+.teacher-id {
+  font-weight: bold;
+  color: #0b0b3b;
+}
+
+/* Info rows */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-row label {
+  flex: 1;
+  text-align: left;
+}
+
+.info-row input {
+  flex: 2;
+  padding: 6px;
+  border: none;
+  background-color: #e6f0ff;
+  border-radius: 5px;
+  color: #333;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: 10px;
+}
+
+.logout-text {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #333;
+}
