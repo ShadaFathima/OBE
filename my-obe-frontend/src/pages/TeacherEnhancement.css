@@ -8,12 +8,13 @@
 
 /* Sidebar */
 .sidebar {
-  width: 200px;
+  width: 220px;
   background-color: #1a1446;
   color: white;
-  padding: 20px;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
+  padding: 2rem;
+  height: calc(100vh - 3rem);
+  /* border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px; */
 }
 
 .sidebar h2 {

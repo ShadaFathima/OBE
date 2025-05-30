@@ -11,15 +11,15 @@ function Home() {
       <h1 className="home-title">TrackMyCO</h1>
       <div className="nav-boxes">
         <div className="nav-box" onClick={() => navigate('/authoritylogin')}>
-          <FaUniversity size={60} />
+          <FaUniversity size={60} color='#000'/>
           <p className="nav-label">Authority</p>
         </div>
         <div className="nav-box" onClick={() => navigate('/teacherlogin')}>
-          <FaChalkboardTeacher size={60} />
+          <FaChalkboardTeacher size={60} color='#000'/>
           <p className="nav-label">Teacher</p>
         </div>
         <div className="nav-box" onClick={() => navigate('/studentlogin')}>
-          <FaUserGraduate size={60} />
+          <FaUserGraduate size={60} color='#000'/>
           <p className="nav-label">Student</p>
         </div>
       </div>

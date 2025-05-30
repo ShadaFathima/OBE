@@ -8,12 +8,12 @@
 
 /* Sidebar */
 .sidebar {
-  width: 200px;
+  width: 250px;
   background-color: #1a1446;
   color: white;
-  padding: 20px;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
+  /* padding: 20px; */
+  /* border-top-left-radius: 20px; */
+  /* border-bottom-left-radius: 20px; */
 }
 
 .sidebar h2 {
@@ -54,7 +54,7 @@
 .main-content {
   flex: 1;
   padding: 40px;
-  background-color: #f8f8ff;
+  background-color: #fff !important;
   overflow-y: auto;
 }
 

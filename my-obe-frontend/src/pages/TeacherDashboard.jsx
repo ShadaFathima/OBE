@@ -96,9 +96,10 @@ const TeacherDashboard = () => {
         </div>
 
         <div className="cards">
-          <div className="card">80<br /><span>CO1</span></div>
-          <div className="card">75<br /><span>CO2</span></div>
-          <div className="card">88<br /><span>CO3</span></div>
+          <div className="card">80<br /><span>Excellent</span></div>
+          <div className="card">75<br /><span>Average</span></div>
+          <div className="card">88<br /><span>Below Average</span></div>
+          <div className="card">63<br /><span>At-risk</span></div>
         </div>
 
         <div className="bottom-section">

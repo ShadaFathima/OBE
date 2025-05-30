@@ -16,9 +16,6 @@ import Signin from './pages/Signin';
 
 import Speedometer from './components/Speedometer';
 import Loader from './components/Loader';
-// App.jsx
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Upload from "./upload"; // Assuming the filename is upload.jsx and same folder
 
 function App() {
@@ -41,13 +38,6 @@ function App() {
         backgroundColor: '#1E2E50'
       }}>
         <Loader />
-  return (
-    <Router>
-      <div className="min-h-screen bg-[#f9f9f9] p-4 font-poppins">
-        <Routes>
-          <Route path="/" element={<Upload />} />
-          {/* Add more routes here if needed */}
-        </Routes>
       </div>
     );
   }
@@ -67,11 +57,9 @@ function App() {
       <Route path="/signin" element={<Signin />} />
       <Route path="/speedometer" element={<Speedometer value={741} />} />
       <Route path="/loader" element={<Loader />} />
+      {/* <Route path="/" element={<Upload />} /> */}
     </Routes>
-  );
-    </Router>
   );
 }
 
-export default App;
 export default App;

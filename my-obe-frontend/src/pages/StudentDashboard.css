@@ -8,13 +8,13 @@
 
 /* Sidebar */
 .sidebar {
-  width: 200px;
+  width: 250px;
   background-color: #0d0d2b;
   color: white;
   padding: 20px;
   text-align: left;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
+  /* border-top-right-radius: 20px; */
+  /* border-bottom-right-radius: 20px; */
 }
 
 .sidebar h2 {
