@@ -1,3 +1,5 @@
+#app/services/analysis.py
+
 import pandas as pd
 import logging
 from app.models.classifier import load_model, load_label_encoder, predict_student_category
@@ -132,10 +134,11 @@ def add_model_predictions(df: pd.DataFrame, model=None, label_encoder=None) -> p
         df['Performance'] = DEFAULT_CATEGORY
 
     # Percentage calculation of student marks based on co_avg
-    df['Percentage'] = 0
-    if 'CO_Avg' in df.columns and 'CO_Max' in df.columns:
-        # Avoid division by zero
-        df.loc[df['CO_Max'] != 0, 'Percentage'] = (df['CO_Avg'] / df['CO_Max']) * 100
+    if 'CO_Avg' in df.columns and 'CO_Max' in df.columns and (df['CO_Max'] != 0).any():
+        df['Percentage'] = (df['CO_Avg'] / df['CO_Max'].replace(0, 1)) * 100
+    else:
+        df['Percentage'] = 0.0
+
     return df
 
 
