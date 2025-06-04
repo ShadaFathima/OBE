@@ -1,125 +1,130 @@
-/* Main container */
-.profile-container {
+/* Main container layout */
+.teac-pro-container {
   display: flex;
-  min-height: 100vh;
-  background-color: #f4f4ff;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f1f0ff;
   font-family: Arial, sans-serif;
 }
 
-.sidebar {
-  width: 300px;
-  background-color: #0b0b3b;
-  padding: 20px 10px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
+/* Sidebar styles */
+.teac-pro-sidebar {
+  width: 235px;
+  background-color: #0d0d2b;
+  padding: 2rem;
   color: white;
-  
+  margin: 1.5rem;
+  border-radius: 1.3rem;
 }
 
-
-
-.logo {
-  margin-bottom: 40px;
-  font-size: 1.5rem;
-  font-weight: bold;
+.teac-pro-sidebar h2 {
+  font-size: 20px;
+  margin-bottom: 30px;
   text-align: center;
 }
 
-.menu {
+.teac-pro-sidebar ul {
   list-style: none;
   padding: 0;
 }
 
-.menu li {
+.teac-pro-sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.teac-pro-sidebar ul li a {
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
   gap: 10px;
   color: white;
-  transition: 0.3s ease;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.menu li.active,
-.menu li:hover {
+/* Active and hover styles */
+.teac-pro-sidebar ul li a:hover,
+.teac-pro-sidebar ul li a.active {
   background-color: white;
-  color: #0b0b3b;
+  color: #0d0d2b;
 }
 
-.icon {
-  font-size: 1rem;
+.teac-pro-sidebar .active {
+  background-color: white;
+  color: #0b2447;
+  border-radius: 20px;
+}
+
+
+/* Icon styling */
+.teac-pro-icon {
+  font-size: 20px;
 }
 
 /* Profile card */
-.profile-card {
+.teac-pro-profile-card {
   background-color: white;
   margin: auto;
+  width: 800px;
+  height: 400px;
+  border-radius: 15px;
   padding: 30px;
-  width: 400px;
-  height: 350px;
-  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.profile-img {
-  margin-bottom: 30px;
-}
-
-.avatar {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 10px;
-  border-radius: 50%;
-  background-color: #b8c7e0;
   position: relative;
 }
 
-.teacher-id {
+/* Avatar style */
+.teac-pro-avatar {
+  width: 80px;
+  height: 80px;
+  background-image: url('C:/Users/ASUS/OneDrive/Desktop/Geethu/OBE-1/my-obe-frontend/src/assets/User-200.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  margin: 0 auto 10px auto;
+}
+
+/* User ID */
+.teac-pro-user-id {
   font-weight: bold;
-  color: #0b0b3b;
+  margin-bottom: 70px;
+  font-size: 18px;
 }
 
-/* Info rows */
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.info-row {
+/* Field rows */
+.teac-pro-field-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  margin: 25px 0;
 }
 
-.info-row label {
-  flex: 1;
+.teac-pro-field-row label {
+  width: 100px;
+  font-weight: bold;
   text-align: left;
+  margin-right: 10px;
 }
 
-.info-row input {
-  flex: 2;
+.teac-pro-field-row input {
+  width: 300px;
   padding: 6px;
+  background-color: #e8f0fe;
   border: none;
-  background-color: #e6f0ff;
-  border-radius: 5px;
-  color: #333;
+  border-radius: 4px;
+  margin-right: 10px;
 }
 
-.edit-btn {
-  background: none;
-  border: none;
-  color: #007bff;
+/* Edit link */
+.teac-pro-edit-link {
+  color: #094BD9;
   cursor: pointer;
-  text-decoration: underline;
-  margin-left: 10px;
+  font-size: 14px;
 }
 
-.logout-text {
-  margin-top: 30px;
-  font-size: 0.9rem;
-  color: #333;
+.teac-pro-edit-link:hover {
+  color: #063dc7;
 }
+
+

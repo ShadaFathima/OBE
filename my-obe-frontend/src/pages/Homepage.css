@@ -24,12 +24,12 @@ body {
   color: #fffbfb;
 }
 
-.nav-boxes {
+.home-nav-boxes {
   display: flex;
   gap: 30px;
 }
 
-.nav-box {
+.home-nav-box {
   width: 150px;
   height: 150px;
   background-color: white;
@@ -42,12 +42,12 @@ body {
   transition: 0.3s ease;
 }
 
-.nav-box:hover {
+.home-nav-box:hover {
   box-shadow: 0 0 15px rgba(77, 56, 235, 0.7);
   transform: scale(1.05);
 }
 
-.nav-label {
+.home-nav-label {
   margin-top: 10px;
   font-size: 1.1rem;
   font-weight: 500;

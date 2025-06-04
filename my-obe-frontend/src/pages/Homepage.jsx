@@ -9,18 +9,18 @@ function Home() {
   return (
     <div className="home-container">
       <h1 className="home-title">TrackMyCO</h1>
-      <div className="nav-boxes">
-        <div className="nav-box" onClick={() => navigate('/authoritylogin')}>
+      <div className="home-nav-boxes">
+        <div className="home-nav-box" onClick={() => navigate('/authoritylogin')}>
           <FaUniversity size={60} color='#000'/>
-          <p className="nav-label">Authority</p>
+          <p className="home-nav-label">Authority</p>
         </div>
-        <div className="nav-box" onClick={() => navigate('/teacherlogin')}>
+        <div className="home-nav-box" onClick={() => navigate('/teacherlogin')}>
           <FaChalkboardTeacher size={60} color='#000'/>
-          <p className="nav-label">Teacher</p>
+          <p className="home-nav-label">Teacher</p>
         </div>
-        <div className="nav-box" onClick={() => navigate('/studentlogin')}>
+        <div className="home-nav-box" onClick={() => navigate('/studentlogin')}>
           <FaUserGraduate size={60} color='#000'/>
-          <p className="nav-label">Student</p>
+          <p className="home-nav-label">Student</p>
         </div>
       </div>
     </div>

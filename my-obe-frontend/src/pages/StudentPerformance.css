@@ -1,4 +1,4 @@
-.student-container {
+.stud-perf-student-container {
   display: flex;
   height: 100vh;
   width: 100vw;
@@ -7,86 +7,95 @@
 }
 
 /* Sidebar */
-.sidebar {
-  width: 250px;
-  background-color: #1a1446;
+.stud-perf-sidebar {
+  width: 235px;
+  background-color: #0d0d2b;
+  padding: 2rem;
   color: white;
-  /* padding: 20px; */
-  /* border-top-left-radius: 20px; */
-  /* border-bottom-left-radius: 20px; */
+  border-radius: 1.3rem;
+  margin: 1.5rem ;
 }
 
-.sidebar h2 {
+.stud-perf-sidebar h2 {
   margin-bottom: 30px;
   font-size: 20px;
+  text-align: center;
 }
 
-.sidebar ul {
+.stud-perf-sidebar ul {
   list-style: none;
   padding: 0;
 }
 
-.sidebar ul li {
+.stud-perf-sidebar ul li {
   margin-bottom: 20px;
 }
 
-.sidebar ul li a {
-  color: white;
-  text-decoration: none;
+.stud-perf-sidebar ul li a {
   display: flex;
   align-items: center;
-  font-size: 14px;
-}
-
-.sidebar ul li a .icon {
-  margin-right: 10px;
-}
-
-.sidebar ul li.active,
-.sidebar ul li.active a,
-.sidebar ul li a:hover {
-  background-color: white;
-  color: #1a1446;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
   border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* .stud-perf-sidebar ul li a .icon {
+  margin-right: 10px;
+} */
+
+.stud-perf-sidebar ul li a:active,
+.stud-perf-sidebar ul li a:hover {
+  background-color: white;
+  color: #0d0d2b;
+}
+
+.stud-perf-icon{
+  font-size: 20px;
 }
 
 /* Main Content */
-.main-content {
-  flex: 1;
-  padding: 40px;
-  background-color: #fff !important;
-  overflow-y: auto;
+.stud-perf-main-content {
+  flex-grow: 1;
+  margin :1.5rem 1.5rem 1.5rem 0;
+  background-color: #ffffff;
+  border-radius: 10px !important;
+  height: fit-content;
+  overflow: hidden;
+  padding: 0  2rem !important;
 }
 
-.main-content h2 {
+.stud-perf-main-content h2 {
   font-size: 25px;
   font-weight: bold;
 }
 
-.title {
+.stud-perf-title {
   color: #2d2a7f;
   margin-bottom: 30px;
   font-size: 20px;
 }
 
-.section {
+.stud-perf-section {
   margin-bottom: 40px; /* More space between sections */
 }
 
-.section h3 {
+.stud-perf-section h3 {
   font-size: 18px;
   margin-bottom: 20px;
   text-align: left;
   color: #2d2a7f;
 }
 
-.doc-cards {
+.stud-perf-doc-cards {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
 }
 
-.doc-card {
+.stud-perf-doc-card {
   background-color: #eceaff;
   padding: 10px;
   border-radius: 8px;
@@ -94,25 +103,30 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
-.doc-card h4 {
+.stud-perf-doc-card h4 {
   color: #2d2a7f;
   font-size: 14px;
   margin-bottom: 10px;
 }
 
-.doc-card p {
+.stud-perf-doc-card p {
   font-size: 12px;
   color: #333;
 }
 
-.doc-card a {
+.stud-perf-doc-card a {
   color: #4e4eff;
   text-decoration: none;
   font-weight: 500;
 }
 
-.video-thumbnails {
+.stud-perf-video-thumbnails {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+.stud-perf-sidebar .active {
+  background-color: white;
+  color: #0b2447;
+  border-radius: 20px;
 }

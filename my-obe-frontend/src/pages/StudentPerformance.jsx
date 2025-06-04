@@ -1,6 +1,6 @@
 import React from "react";
 import "./StudentPerformance.css";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, NavLink, Link } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { RiLogoutBoxRLine } from "react-icons/ri";
@@ -9,42 +9,47 @@ const StudentPerformance = () => {
   const location = useLocation();
 
   return (
-    <div className="student-container">
-      <div className="sidebar">
+    <div className="stud-perf-student-container">
+      <div className="stud-perf-sidebar">
         <h2>TrackMyCO</h2>
         <ul>
           <li>
             <Link to="/studentdashboard">
-              <MdManageAccounts className="icon" /> Profile
+              <MdManageAccounts className="stud-perf-icon" /> Profile
             </Link>
           </li>
 
           <li>
             <Link to="/studentdashboardview">
-              <MdDashboard className="icon" /> Dashboard
+              <MdDashboard className="stud-perf-icon" /> Dashboard
             </Link>
           </li>
 
-          <li className="active">
-            <BiBadgeCheck className="icon" /> Performance
-          </li>
+           <li>
+                      <NavLink
+                        to="/studentperformance"
+                        className={({ isActive }) => isActive ? "active" : ""}
+                      >
+                        <BiBadgeCheck className="stud-perf-icon" /> Performance
+                      </NavLink>
+                    </li>
 
           <li>
             <Link to="/studentlogin">
-              <RiLogoutBoxRLine className="icon" /> Logout
+              <RiLogoutBoxRLine className="stud-perf-icon" /> Logout
             </Link>
           </li>
         </ul>
       </div>
 
-      <div className="main-content">
-        <h2 className="title">Suggestions to Improve your Performance</h2>
+      <div className="stud-perf-main-content">
+        <h2 className="stud-perf-title">Suggestions to Improve your Performance</h2>
 
-        <div className="section">
+        <div className="stud-perf-section">
           <h3>Documentations</h3>
-          <div className="doc-cards">
+          <div className="stud-perf-doc-cards">
             {[1, 2, 3].map((_, i) => (
-              <div className="doc-card" key={i}>
+              <div className="stud-perf-doc-card" key={i}>
                 <h4>CO{i + 1} (Fundamentals of Data Analysis)</h4>
                 <p>
                   Lorem Ipsum is simply dummy text of the printing and typesetting
@@ -56,9 +61,9 @@ const StudentPerformance = () => {
           </div>
         </div>
 
-        <div className="section">
+        <div className="stud-perf-section">
           <h3>Videos</h3>
-          <div className="video-thumbnails">
+          <div className="stud-perf-video-thumbnails">
             <iframe
               width="280"
               height="160"

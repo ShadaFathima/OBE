@@ -1,4 +1,5 @@
-.student-container {
+/* Main container layout */
+.stud-dash-student-container {
   display: flex;
   height: 100vh;
   width: 100vw;
@@ -6,45 +7,63 @@
   font-family: Arial, sans-serif;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 250px;
+/* Sidebar styles */
+.stud-dash-sidebar {
+  width: 235px;
   background-color: #0d0d2b;
+  padding: 2rem;
   color: white;
-  padding: 20px;
-  text-align: left;
-  /* border-top-right-radius: 20px; */
-  /* border-bottom-right-radius: 20px; */
+  margin: 1.5rem;
+  border-radius: 1.3rem;
 }
 
-.sidebar h2 {
+.stud-dash-sidebar h2 {
   font-size: 20px;
   margin-bottom: 30px;
   text-align: center;
 }
 
-.sidebar ul {
+.stud-dash-sidebar ul {
   list-style: none;
   padding: 0;
 }
 
-.sidebar ul li {
+.stud-dash-sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.stud-dash-sidebar ul li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
   padding: 12px 20px;
-  cursor: pointer;
   border-radius: 20px;
-  margin: 5px 0;
   transition: background-color 0.3s, color 0.3s;
 }
 
-.sidebar ul li:hover,
-.sidebar ul li.active {
+/* Active and hover styles */
+.stud-dash-sidebar ul li a:hover,
+.stud-dash-sidebar ul li a.active {
   background-color: white;
   color: #0d0d2b;
 }
 
+.stud-dash-sidebar .active {
+  background-color: white;
+  color: #0b2447;
+  border-radius: 20px;
+}
 
 
-.profile-card {
+/* Icon styling */
+.stud-dash-icon {
+  font-size: 20px;
+}
+
+/* Profile card */
+.stud-dash-profile-card {
   background-color: white;
   margin: auto;
   width: 800px;
@@ -53,39 +72,42 @@
   padding: 30px;
   text-align: center;
   position: relative;
-
 }
 
-.avatar {
+/* Avatar style */
+.stud-dash-avatar {
   width: 80px;
   height: 80px;
-  background-image: url('C:\Users\ASUS\OneDrive\Desktop\Geethu\OBE-1\my-obe-frontend\src\assets\User-200.png');
+  background-image: url('C:/Users/ASUS/OneDrive/Desktop/Geethu/OBE-1/my-obe-frontend/src/assets/User-200.png');
   background-size: cover;
   background-position: center;
   border-radius: 50%;
   margin: 0 auto 10px auto;
 }
 
-.user-id {
+/* User ID */
+.stud-dash-user-id {
   font-weight: bold;
   margin-bottom: 70px;
+  font-size: 18px;
 }
 
-.field-row {
+/* Field rows */
+.stud-dash-field-row {
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 25px 0;
 }
 
-.field-row label {
+.stud-dash-field-row label {
   width: 100px;
   font-weight: bold;
   text-align: left;
   margin-right: 10px;
 }
 
-.field-row input {
+.stud-dash-field-row input {
   width: 300px;
   padding: 6px;
   background-color: #e8f0fe;
@@ -94,19 +116,15 @@
   margin-right: 10px;
 }
 
-.edit-link {
+/* Edit link */
+.stud-dash-edit-link {
   color: #094BD9;
   cursor: pointer;
   font-size: 14px;
 }
 
-.edit-link:hover {
-  color: #094BD9;
+.stud-dash-edit-link:hover {
+  color: #063dc7;
 }
 
 
-.icon {
-  margin-right: 10px;
-  vertical-align: middle;
-  font-size: 28px;
-}

@@ -1,6 +1,6 @@
 import React from "react";
 import "./StudentDashboardView.css";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, NavLink, Link } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { RiLogoutBoxRLine } from "react-icons/ri";
@@ -100,35 +100,41 @@ const StudentDashboardView = () => {
   const strokeDashoffset = ((100 - averageScore) / 100) * circumference;
 
   return (
-    <div className="student-container">
-      <div className="sidebar">
+    <div className="stud-dash-view-student-container">
+      <div className="stud-dash-view-sidebar">
         <h2>TrackMyCO</h2>
         <ul>
           <li>
             <Link to="/studentdashboard">
-              <MdManageAccounts className="icon" /> Profile
+              <MdManageAccounts className="stud-dash-view-icon" /> Profile
             </Link>
           </li>
-          <li className="active">
-            <MdDashboard className="icon" /> Dashboard
+          <li>
+            <NavLink
+              to="/studentdashboardview"
+              className={({ isActive }) => isActive ? "active" : ""}
+            >
+              <MdDashboard className="stud-dash-view-icon" /> Dashboard
+            </NavLink>
           </li>
+
           <li>
             <Link to="/studentperformance">
-              <BiBadgeCheck className="icon" /> Performance
+              <BiBadgeCheck className="stud-dash-view-icon" /> Performance
             </Link>
           </li>
           <li>
             <Link to="/studentlogin">
-              <RiLogoutBoxRLine className="icon" /> Logout
+              <RiLogoutBoxRLine className="stud-dash-view-icon" /> Logout
             </Link>
           </li>
         </ul>
       </div>
 
-      <div className="main-content">
-        <div className="dashboard">
-          <div className="chart-section">
-            <div className="chart-box">
+      <div className="stud-dash-view-main-content">
+        <div className="stud-dash-view-dashboard">
+          <div className="stud-dash-view-chart-section">
+            <div className="stud-dash-view-chart-box">
               <h3>CO Performance</h3>
               <LineChart width={400} height={250} data={lineData}>
                 <Line type="monotone" dataKey="2020" stroke="#8884d8" />
@@ -141,7 +147,7 @@ const StudentDashboardView = () => {
               </LineChart>
             </div>
 
-            <div className="chart-box">
+            <div className="stud-dash-view-chart-box">
               <h3>CO Graph</h3>
               <BarChart width={400} height={250} data={barData}>
                 <defs>
@@ -199,30 +205,35 @@ const StudentDashboardView = () => {
             </div>
           </div>
 
-          <div className="score-average-row">
-            <div className="score-feed-container">
-              <div className="score-section">
+          <div className="stud-dash-view-score-average-row">
+            <div className="stud-dash-view-score-feed-container">
+              <div className="stud-dash-view-score-section">
                 <h3>Score</h3>
-                <div className="score-cards">
+                <div className="stud-dash-view-score-cards">
                   {scores.map((score, index) => (
-                    <div key={index} className="score-card">
+                    <div key={index} className="stud-dash-view-score-card">
                       <div>{score}</div>
                       <small>CO{index + 1}</small>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="feedback-box">
+              <div className="stud-dash-view-feedback-box">
                 <h3>Feedback</h3>
                 <p>
-                  Lorem Ipsum is simply dummy text of the printing and typesetting industry...
+                  Lorem Ipsum is simply dummy text of the printing and typesetting industry..11. What is the future scope of this project?
+Answer: The system can be enhanced by integrating real-time AI chatbots for instant mentor support, improving emotion recognition accuracy, and adding gamification for better engagement.
+
+12. What was your personal contribution to the project?
+(Customize this based on your actual role)
+Answer (example): I was involved in developing the frontend using Flutter and HTML/CSS, wo
                 </p>
               </div>
             </div>
 
-            <div className="average-box">
+            <div className="stud-dash-view-average-box">
               <h3>Average</h3>
-              <div className="img-box">
+              <div className="stud-dash-view-img-box">
                 <svg width="200" height="200" viewBox="0 0 200 200">
                   <circle
                     cx="100"
