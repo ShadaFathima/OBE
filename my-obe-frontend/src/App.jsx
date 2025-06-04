@@ -16,7 +16,7 @@ import Signin from './pages/Signin';
 
 import Speedometer from './components/Speedometer';
 import Loader from './components/Loader';
-import Upload from "./upload"; // Assuming the filename is upload.jsx and same folder
+import Upload from "./pages/upload"; // Assuming the filename is upload.jsx and same folder
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +48,7 @@ function App() {
       <Route path="/teacherlogin" element={<TeacherLogin />} />
       <Route path="/studentlogin" element={<StudentLogin />} />
       <Route path="/studentdashboard" element={<StudentDashboard />} />
-      <Route path="/studentdashboardview" element={<StudentDashboardView />} />
+      <Route path="/student-dashboard/:regNo" element={<StudentDashboardView />} />
       <Route path="/studentperformance" element={<StudentPerformance />} />
       <Route path="/teacherprofile" element={<TeacherProfile />} />
       <Route path="/teacherdashboard" element={<TeacherDashboard />} />
@@ -57,7 +57,7 @@ function App() {
       <Route path="/signin" element={<Signin />} />
       <Route path="/speedometer" element={<Speedometer value={741} />} />
       <Route path="/loader" element={<Loader />} />
-      {/* <Route path="/" element={<Upload />} /> */}
+      <Route path="/upload" element={<Upload />} />
     </Routes>
   );
 }

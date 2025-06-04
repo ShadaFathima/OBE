@@ -1,15 +1,18 @@
-from fastapi import HTTPException, APIRouter, UploadFile, Form
-from typing import Optional
+# app/routers/upload.py
+
+from fastapi import HTTPException, APIRouter, UploadFile, Depends
 import pandas as pd
-import json
 import logging
 import asyncio
 from io import BytesIO
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.services.analysis import preprocess, add_model_predictions, get_weak_cos
 from app.services.improvement import suggest_improvement_strategy
-from app.auth import require_role, UserRole
+from app.services.crud import create_student_result, save_study_material
+from app.models.schemas import StudentResultCreate, SuggestionItem
+from app.services.db import get_db
 
-# Setup logger with format
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
@@ -18,120 +21,170 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+
 @router.post("/upload/")
 async def upload_excel(
     file: UploadFile,
-    co_mapping_json: Optional[str] = Form(None),
-    co_definitions_json: Optional[str] = Form(None)
+    db: AsyncSession = Depends(get_db)
 ) -> dict:
     try:
-        # Step 1: Validate file
         filename = file.filename.strip()
-        content_type = file.content_type
-        logger.info(f"Received file: {filename} | Content-Type: {content_type}")
-
         if not filename.endswith(".xlsx"):
             raise HTTPException(status_code=400, detail="Only .xlsx Excel files are supported.")
 
-        # Step 2: Read Excel file into DataFrame
         contents = await file.read()
+
         try:
-            df = pd.read_excel(BytesIO(contents), engine='openpyxl')
-            logger.info(f"Excel DataFrame loaded: shape={df.shape}, columns={df.columns.tolist()}")
+            xls = pd.ExcelFile(BytesIO(contents), engine='openpyxl')
         except Exception:
-            logger.exception("Error reading Excel file")
-            raise HTTPException(status_code=400, detail="Failed to read Excel file. Ensure it is a valid .xlsx file.")
+            logger.exception("Failed to open Excel file")
+            raise HTTPException(status_code=400, detail="Failed to read Excel file. Ensure it's valid.")
 
-        if df.empty:
-            logger.warning("Uploaded DataFrame is empty.")
-            raise HTTPException(status_code=400, detail="Uploaded file is empty or does not contain valid data.")
+        required_sheets = ["marks", "CO_Mapping", "CO_Definition"]
+        for sheet in required_sheets:
+            if sheet not in xls.sheet_names:
+                raise HTTPException(status_code=400, detail=f"Excel file missing required sheet: '{sheet}'")
 
-        # Step 3: Parse CO mapping JSON
-        if not co_mapping_json:
-            raise HTTPException(status_code=400, detail="CO mapping JSON is required.")
+        df_marks = pd.read_excel(xls, sheet_name="marks")
+        df_co_mapping = pd.read_excel(xls, sheet_name="CO_Mapping")
+        df_co_definitions = pd.read_excel(xls, sheet_name="CO_Definition")
 
-        try:
-            question_to_co = json.loads(co_mapping_json)
-            if not isinstance(question_to_co, dict) or not question_to_co:
-                raise ValueError("CO mapping JSON must be a non-empty dictionary.")
-            logger.info(f"CO Mapping JSON parsed successfully.")
-        except Exception:
-            logger.exception("Invalid CO mapping JSON.")
-            raise HTTPException(status_code=400, detail="Invalid or empty CO mapping JSON.")
+        if df_marks.empty:
+            raise HTTPException(status_code=400, detail="Marks sheet (marks) is empty.")
 
-        # Step 4: Parse CO definitions JSON (optional)
-        try:
-            co_definitions = json.loads(co_definitions_json) if co_definitions_json else {}
-            logger.info(f"CO Definitions JSON parsed.")
-        except json.JSONDecodeError as e:
-            logger.exception("Invalid CO definitions JSON.")
-            raise HTTPException(status_code=400, detail=f"Invalid CO definitions JSON: {str(e)}")
+        question_to_co = {
+            str(row["QN.NO"]).strip(): str(row["CO"]).strip()
+            for _, row in df_co_mapping.iterrows()
+            if row.get("QN.NO") and row.get("CO")
+        }
 
-        # Step 5: Preprocess the uploaded data
-        try:
-            pivot_df = preprocess(df, question_to_co)
-            logger.info(f"After preprocessing: shape={pivot_df.shape}, columns={pivot_df.columns.tolist()}")
-        except Exception:
-            logger.exception("Data preprocessing failed.")
-            raise HTTPException(status_code=400, detail="Data preprocessing failed. Check uploaded data and CO mapping.")
+        co_definitions = {
+            str(row["CO"]).strip(): str(row["Definition"]).strip()
+            for _, row in df_co_definitions.iterrows()
+            if row.get("CO") and row.get("Definition")
+        }
 
-        # Step 6: Run model prediction
+        logger.info(f"Excel loaded: marks={df_marks.shape}, CO Mapping={len(question_to_co)}, CO Definitions={len(co_definitions)}")
+
+        pivot_df = preprocess(df_marks, question_to_co)
         pivot_df = add_model_predictions(pivot_df)
         perf_counts = pivot_df['Performance'].value_counts().to_dict() if 'Performance' in pivot_df else {}
-        logger.info(f"Model prediction completed. Performance distribution: {perf_counts}")
 
-        # Step 7: Identify weak COs per student
         weak_cos_map = get_weak_cos(pivot_df)
-        logger.info(f"Weak COs detected for {len(weak_cos_map)} students.")
 
-        # Step 8: Generate improvement suggestions asynchronously
         improvement_suggestions = {}
         for reg_no, weak_cos in weak_cos_map.items():
-            improvement_suggestions[reg_no] = []
             coroutines = [
-                suggest_improvement_strategy(co, co_definitions.get(co, "Definition not available"))
+                suggest_improvement_strategy(co, co_definitions.get(co, "Definition not available"), db)
                 for co in weak_cos
             ]
             try:
                 suggestions = await asyncio.gather(*coroutines)
-                improvement_suggestions[reg_no].extend(suggestions)
-                logger.info(f"Suggestions generated for {reg_no}.")
+                improvement_suggestions[reg_no] = suggestions
             except Exception:
-                logger.exception(f"Error generating suggestions for {reg_no}.")
+                logger.exception(f"Error generating suggestions for {reg_no}")
+                improvement_suggestions[reg_no] = []
 
-        # Step 9: Prepare final response data
         students_result = []
         unique_students = pivot_df.drop_duplicates(subset=['Register Number'])
 
         for _, row in unique_students.iterrows():
             reg_no = row.get('Register Number')
             performance = row.get("Performance", "Unknown")
-            percentage = row.get("Percentage", 0)
+            percentage = row.get("Percentage", 0.0)
+            weak_cos = weak_cos_map.get(reg_no, [])
+            imp_list = improvement_suggestions.get(reg_no, [])
 
             result = {
                 "register_number": reg_no,
                 "performance": performance,
                 "percentage": round(percentage, 2),
-                "weak_cos": weak_cos_map.get(reg_no, []),
-                "improvements": improvement_suggestions.get(reg_no, [])
+                "weak_cos": weak_cos,
+                "improvements": imp_list
             }
+
+            try:
+                # Normalize SuggestionItem from dict or raw response
+                def fill_missing_keys(sugg: dict) -> dict:
+                    material = sugg.get("material", [])
+                    if isinstance(material, str):
+                        material = [material]
+
+                    youtube_videos = sugg.get("youtube_videos", [])
+                    if isinstance(youtube_videos, str):
+                        youtube_videos = [{"title": "YouTube", "url": youtube_videos}]
+                    elif isinstance(youtube_videos, list):
+                        fixed = []
+                        for y in youtube_videos:
+                            if isinstance(y, str):
+                                fixed.append({"title": "YouTube", "url": y})
+                            elif isinstance(y, dict):
+                                fixed.append(y)
+                        youtube_videos = fixed
+                    else:
+                        youtube_videos = []
+
+                    return {
+                        "co": sugg.get("co", ""),
+                        "definition": sugg.get("definition", ""),
+                        "material": material,
+                        "youtube_videos": youtube_videos
+                    }
+
+                suggestions_dict = {
+                    co: SuggestionItem(**fill_missing_keys(imp))
+                    for co, imp in zip(weak_cos, imp_list)
+                }
+
+                for co, suggestion in suggestions_dict.items():
+                    try:
+                        topic = co_definitions.get(co, "")
+                        material = suggestion.material
+                        youtube_videos = suggestion.youtube_videos
+
+                        await save_study_material(
+                            db=db,
+                            topic=topic,
+                            web_summaries=[
+                                {"title": f"Summary {i+1}", "link": str(m)}
+                                for i, m in enumerate(material)
+                                if isinstance(m, str)
+                            ],
+                            youtube_videos=youtube_videos
+                        )
+                    except Exception as e:
+                        logger.warning(f"Failed to save study material for CO {co}: {e}")
+
+                suggestions_dict_for_db = {
+                    co: suggestion.dict() for co, suggestion in suggestions_dict.items()
+                }
+
+
+                await create_student_result(db, StudentResultCreate(
+                    register_number=reg_no,
+                    performance=performance,
+                    weak_cos=weak_cos,
+                    suggestions=suggestions_dict_for_db
+                ))
+
+                logger.info(f"Saved student result for {reg_no} to database.")
+            except Exception as e:
+                logger.exception(f"Failed to save student result for {reg_no}: {e}")
+
             students_result.append(result)
 
         students_result.sort(key=lambda x: x["register_number"])
 
-        final_response = {
+        return {
             "filename": filename,
-            "rows": len(df),
+            "rows": len(df_marks),
             "predicted_distribution": perf_counts,
             "students": students_result,
             "co_definitions_received": co_definitions
         }
 
-        logger.info(f"Final API response prepared with {len(students_result)} student results.")
-        return final_response
-
     except HTTPException:
         raise
     except Exception:
-        logger.exception("Unexpected server error.")
+        logger.exception("Unexpected server error")
         raise HTTPException(status_code=500, detail="Internal server error occurred.")

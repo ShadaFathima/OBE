@@ -1,21 +1,34 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Login.css';
 import loginImage from '../assets/png.png';
 
 function StudentLogin() {
   const [registerNo, setRegisterNo] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    console.log('Register No:', registerNo);
-    console.log('Password:', password);
+    setError('');
 
-    if (registerNo === '12345' && password === 'password') {
-      alert('Login successful!');
-    } else {
-      alert('Invalid credentials');
+    try {
+      const response = await axios.post('http://localhost:8000/login/', {
+        register_no: registerNo,
+        password: password,
+      });
+
+      if (response.data.success) {
+        alert('Login successful!');
+        navigate(`/student-dashboard/${registerNo}`);
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Login failed. Please try again.');
     }
   };
 
@@ -45,6 +58,8 @@ function StudentLogin() {
             />
 
             <button type="submit">Login</button>
+
+            {error && <p className="error-text">{error}</p>}
 
             <div className="signin-option">
               <a href="#">Forgot Password?</a>
