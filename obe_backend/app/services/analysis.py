@@ -25,6 +25,8 @@ def preprocess(df, question_to_co):
 
     df['Question'] = df['Question'].astype(int)
     df['Mark'] = pd.to_numeric(df['Mark'], errors='coerce')
+    print("head of df after preprocessing:")
+    print(df.head())
 
     # Debug: show unique questions before mapping
     print("Unique questions in Excel:", df['Question'].unique())
@@ -80,7 +82,9 @@ def preprocess(df, question_to_co):
     # Make sure CO columns are numeric to avoid hidden string/NaN problems
     for co in co_columns:
         question_pivot[co] = pd.to_numeric(question_pivot[co], errors='coerce').fillna(0)
-
+    # checking the columns 
+    print("\nCO columns in question_pivot DataFrame:")
+    print(question_pivot.columns)
     print("\nData types of CO columns:")
     print(question_pivot[co_columns].dtypes)
 

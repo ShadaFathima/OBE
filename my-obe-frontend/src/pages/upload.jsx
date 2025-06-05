@@ -17,7 +17,7 @@ function Upload() {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Data successfully stored in the database!");
+      alert("File uploaded successfully!");
       console.log("Server response:", response.data);
     } catch (err) {
       console.error("Upload failed", err);
