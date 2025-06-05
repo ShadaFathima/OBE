@@ -221,12 +221,7 @@ const StudentDashboardView = () => {
               <div className="stud-dash-view-feedback-box">
                 <h3>Feedback</h3>
                 <p>
-                  Lorem Ipsum is simply dummy text of the printing and typesetting industry..11. What is the future scope of this project?
-Answer: The system can be enhanced by integrating real-time AI chatbots for instant mentor support, improving emotion recognition accuracy, and adding gamification for better engagement.
-
-12. What was your personal contribution to the project?
-(Customize this based on your actual role)
-Answer (example): I was involved in developing the frontend using Flutter and HTML/CSS, wo
+                  Lorem Ipsum is simply dummy text of the printing and typesetting industry..
                 </p>
               </div>
             </div>

@@ -16,12 +16,8 @@ import Signin from './pages/Signin';
 
 import Speedometer from './components/Speedometer';
 import Loader from './components/Loader';
-<<<<<<< HEAD
-import Upload from "./upload"; // Assuming the filename is upload.jsx and same folder
-import Uploading from './pages/Uploading';
-=======
 import Upload from "./pages/upload"; // Assuming the filename is upload.jsx and same folder
->>>>>>> 6f6d727d261b76e730c91a84844fd17555840ecf
+import Uploading from './pages/Uploading';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +49,7 @@ function App() {
       <Route path="/teacherlogin" element={<TeacherLogin />} />
       <Route path="/studentlogin" element={<StudentLogin />} />
       <Route path="/studentdashboard" element={<StudentDashboard />} />
-      <Route path="/student-dashboard/:regNo" element={<StudentDashboardView />} />
+      <Route path="/studentdashboardview" element={<StudentDashboardView />} />
       <Route path="/studentperformance" element={<StudentPerformance />} />
       <Route path="/teacherprofile" element={<TeacherProfile />} />
       <Route path="/teacherdashboard" element={<TeacherDashboard />} />
@@ -63,10 +59,7 @@ function App() {
       <Route path="/speedometer" element={<Speedometer value={741} />} />
       <Route path="/loader" element={<Loader />} />
       <Route path="/upload" element={<Upload />} />
-<<<<<<< HEAD
       <Route path='/uploading' element={<Uploading/>} />
-=======
->>>>>>> 6f6d727d261b76e730c91a84844fd17555840ecf
     </Routes>
   );
 }
