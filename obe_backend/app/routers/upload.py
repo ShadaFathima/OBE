@@ -12,6 +12,9 @@ from app.services.improvement import suggest_improvement_strategy
 from app.services.crud import create_student_result, save_study_material
 from app.models.schemas import StudentResultCreate, SuggestionItem
 from app.services.db import get_db
+from app.models.schemas import StudentDetailsCreate
+from app.services.crud import create_student_detail
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,6 +70,23 @@ async def upload_excel(
         logger.info(f"Excel loaded: marks={df_marks.shape}, CO Mapping={len(question_to_co)}, CO Definitions={len(co_definitions)}")
 
         pivot_df = preprocess(df_marks, question_to_co)
+
+        for _, row in pivot_df.iterrows():
+            try:
+                detail_data = StudentDetailsCreate(
+                    register_number=row["Register Number"],
+                    exam=row["Exam"],
+                    course=row["Course"],
+                    **{f"q{col}": row[col] for col in row.index if col.isdigit()},
+                    **{col.lower(): row[col] for col in row.index if col.startswith("CO")}
+                )
+                await create_student_detail(db, detail_data)
+            except Exception as e:
+                logger.warning(f"Failed to save student detail for {row['Register Number']}: {e}")
+
+
+
+
         pivot_df = add_model_predictions(pivot_df)
         perf_counts = pivot_df['Performance'].value_counts().to_dict() if 'Performance' in pivot_df else {}
 

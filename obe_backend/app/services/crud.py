@@ -1,3 +1,5 @@
+#app/services/crud.py
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -7,7 +9,8 @@ from app.models.study_material import StudyMaterial
 from typing import List, Dict, Union
 import logging
 from app.models.schemas import SuggestionItem
-
+from app.models.student_details import StudentDetails
+from app.models.schemas import StudentDetailsCreate
 logger = logging.getLogger(__name__)
 
 
@@ -113,4 +116,18 @@ async def save_study_material_from_suggestion(
 
     except Exception as e:
         logger.exception(f"Failed to save study material for topic: {topic} — {e}")
+        return None
+
+
+
+async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
+    try:
+        student = StudentDetails(**detail.dict())
+        db.add(student)
+        await db.commit()
+        await db.refresh(student)
+        return student
+    except Exception as e:
+        await db.rollback()
+        logger.exception(f"Failed to save student detail for {detail.register_number}", exc_info=e)
         return None

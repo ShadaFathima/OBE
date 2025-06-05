@@ -2,10 +2,11 @@
 
 from sqlalchemy import create_engine
 from app.services.db import Base
-from app.models import student_results ,study_material # register models
+from app.models import student_results ,study_material ,student_details# register models
 
 import os
 from dotenv import load_dotenv
+
 
 # Load .env for DATABASE_URL
 dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')

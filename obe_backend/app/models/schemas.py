@@ -34,3 +34,40 @@ class StudyMaterialSchema(BaseModel):
 
     class Config:
         orm_mode = True
+        
+class StudentDetailsCreate(BaseModel):
+    register_number: str
+    exam: str
+    course: str
+    q1: Optional[float] = None
+    q2: Optional[float] = None
+    q3: Optional[float] = None
+    q4: Optional[float] = None
+    q5: Optional[float] = None
+    q6: Optional[float] = None
+    q7: Optional[float] = None
+    q8: Optional[float] = None
+    q9: Optional[float] = None
+    q10: Optional[float] = None
+    q11: Optional[float] = None
+    q12: Optional[float] = None
+    q13: Optional[float] = None
+    q14: Optional[float] = None
+    q15: Optional[float] = None
+    q16: Optional[float] = None
+    q17: Optional[float] = None
+    q18: Optional[float] = None
+    q19: Optional[float] = None
+    q20: Optional[float] = None
+    co1: Optional[float] = None
+    co2: Optional[float] = None
+    co3: Optional[float] = None
+    co4: Optional[float] = None
+    co5: Optional[float] = None
+    co6: Optional[float] = None
+
+class StudentDetailsOut(StudentDetailsCreate):
+    uploaded_at: datetime
+
+    class Config:
+        from_attributes = True
