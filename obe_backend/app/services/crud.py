@@ -1,27 +1,32 @@
-#app/services/crud.py
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.student_results import StudentResult
-from app.models.schemas import StudentResultCreate
-from app.models.study_material import StudyMaterial
+from sqlalchemy import and_
 from typing import List, Dict, Union
+
 import logging
-from app.models.schemas import SuggestionItem
+
+from app.models.student_results import StudentResult
+from app.models.schemas import StudentResultCreate, SuggestionItem
+from app.models.study_material import StudyMaterial
 from app.models.student_details import StudentDetails
-from app.models.schemas import StudentDetailsCreate
+from app.models.schemas import StudentDetailsCreate, ClassPerformanceCreate
+from app.models.class_performance import ClassPerformance
+
 logger = logging.getLogger(__name__)
 
 
 async def create_student_result(db: AsyncSession, result: StudentResultCreate):
     try:
         existing_result = await get_student_result_by_regno(db, result.register_number)
+        suggestions_dict = {
+            k: v.dict() if hasattr(v, "dict") else v for k, v in result.suggestions.items()
+        }
+
         if existing_result:
             existing_result.performance = result.performance
             existing_result.weak_cos = result.weak_cos
-            existing_result.suggestions = {k: v.dict() for k, v in result.suggestions.items()}
-
+            existing_result.suggestions = suggestions_dict
             await db.commit()
             await db.refresh(existing_result)
             return existing_result
@@ -30,8 +35,7 @@ async def create_student_result(db: AsyncSession, result: StudentResultCreate):
                 register_number=result.register_number,
                 performance=result.performance,
                 weak_cos=result.weak_cos,
-                suggestions={k: v.dict() for k, v in result.suggestions.items()}  # 👈 fix here
-
+                suggestions=suggestions_dict
             )
             db.add(db_result)
             await db.commit()
@@ -41,7 +45,7 @@ async def create_student_result(db: AsyncSession, result: StudentResultCreate):
     except SQLAlchemyError as e:
         await db.rollback()
         logger.error("Error in create_student_result", exc_info=e)
-        raise e
+        raise
 
 
 async def get_student_result_by_regno(db: AsyncSession, register_number: str):
@@ -64,7 +68,6 @@ async def get_study_material_by_topic(db: AsyncSession, topic: str):
     }
 
 
-
 async def save_study_material(
     db: AsyncSession,
     topic: str,
@@ -80,7 +83,7 @@ async def save_study_material(
     new_entry = StudyMaterial(
         topic=cleaned_topic,
         web_summaries=web_summaries,
-        youtube_videos=youtube_videos  # ✅ no need to json.dumps
+        youtube_videos=youtube_videos
     )
     db.add(new_entry)
     try:
@@ -90,7 +93,7 @@ async def save_study_material(
         return new_entry
     except Exception as e:
         await db.rollback()
-        logger.exception(f"Failed to commit study material for topic: {topic} — {e}")
+        logger.exception(f"Failed to commit study material for topic: {topic}", exc_info=e)
         return None
 
 
@@ -102,22 +105,21 @@ async def save_study_material_from_suggestion(
     try:
         if isinstance(suggestion, dict):
             material = suggestion.get("material", [])
-            youtube_videos = suggestion.get("youtube_query", "")
+            youtube_query = suggestion.get("youtube_query", "")
         else:
             material = suggestion.material if isinstance(suggestion.material, list) else []
-            youtube_videos = suggestion.youtube_query or ""
+            youtube_query = suggestion.youtube_query or ""
 
         youtube_videos = (
-            [{"title": f"YouTube for {topic}", "url": youtube_videos}]
-            if youtube_videos else []
+            [{"title": f"YouTube for {topic}", "url": youtube_query}]
+            if youtube_query else []
         )
 
         return await save_study_material(db, topic, material, youtube_videos)
 
     except Exception as e:
-        logger.exception(f"Failed to save study material for topic: {topic} — {e}")
+        logger.exception(f"Failed to save study material for topic: {topic}", exc_info=e)
         return None
-
 
 
 async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
@@ -131,3 +133,37 @@ async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
         await db.rollback()
         logger.exception(f"Failed to save student detail for {detail.register_number}", exc_info=e)
         return None
+
+
+async def get_class_performance(db: AsyncSession, course: str, exam: str):
+    result = await db.execute(
+        select(ClassPerformance).where(
+            and_(
+                ClassPerformance.course == course,
+                ClassPerformance.exam == exam
+            )
+        )
+    )
+    return result.scalars().first()
+
+
+async def save_class_performance(db: AsyncSession, performance_data: ClassPerformanceCreate):
+    try:
+        existing = await get_class_performance(db, performance_data.course, performance_data.exam)
+        if existing:
+            for field, value in performance_data.dict(exclude_unset=True).items():
+                setattr(existing, field, value)
+            await db.commit()
+            await db.refresh(existing)
+            return existing
+        else:
+            record = ClassPerformance(**performance_data.dict())
+            db.add(record)
+            await db.commit()
+            await db.refresh(record)
+            return record
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Failed to save or update class performance", exc_info=e)
+        raise

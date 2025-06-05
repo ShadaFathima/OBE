@@ -14,6 +14,7 @@ from app.models.schemas import StudentResultCreate, SuggestionItem
 from app.services.db import get_db
 from app.models.schemas import StudentDetailsCreate
 from app.services.crud import create_student_detail
+from app.services.class_analysis import compute_and_save_class_performance
 
 
 logging.basicConfig(
@@ -88,6 +89,8 @@ async def upload_excel(
 
 
         pivot_df = add_model_predictions(pivot_df)
+        print(pivot_df.head())
+        await compute_and_save_class_performance(pivot_df, db)
         perf_counts = pivot_df['Performance'].value_counts().to_dict() if 'Performance' in pivot_df else {}
 
         weak_cos_map = get_weak_cos(pivot_df)
