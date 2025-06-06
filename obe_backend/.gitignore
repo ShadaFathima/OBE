@@ -22,3 +22,7 @@ app/data/mock_student_data.csv
 
 # Cache folder
 cache/
+# Log files
+*.log
+
+.env

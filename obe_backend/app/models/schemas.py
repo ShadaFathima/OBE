@@ -17,6 +17,7 @@ class SuggestionItem(BaseModel):
 class StudentResultCreate(BaseModel):
     register_number: str
     performance: str  # You can convert this to Enum if needed
+    percentage: float
     weak_cos: List[str]
     suggestions: Dict[str, SuggestionItem]
 

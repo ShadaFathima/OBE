@@ -5,6 +5,7 @@ import pandas as pd
 import logging
 from app.models.schemas import ClassPerformanceCreate
 from app.services.crud import save_class_performance
+from sqlalchemy.dialects.postgresql import insert  # ensure this import
 
 
 logger = logging.getLogger(__name__)
@@ -36,25 +37,25 @@ def compute_class_averages(df: pd.DataFrame) -> dict | None:
     return data
 
 
-async def save_class_performance(db: AsyncSession, data: dict) -> dict | None:
-    """
-    Save the class performance data dict to the database.
-    """
+async def store_class_performance(db: AsyncSession, data: ClassPerformanceCreate) -> dict | None:
     try:
-        stmt = insert(ClassPerformance).values(**data.dict())
+        data_dict = data.dict()
+
+        stmt = insert(ClassPerformance).values(**data_dict).on_conflict_do_update(
+            index_elements=['course', 'exam'],
+            set_=data_dict
+        )
         await db.execute(stmt)
         await db.commit()
         logger.info(f"Class performance saved for course {data.course} exam {data.exam}")
-        return data
+        return data_dict
     except Exception as e:
         logger.error(f"Error saving class performance: {e}", exc_info=True)
         return None
-
-
 
 async def compute_and_save_class_performance(df: pd.DataFrame, db: AsyncSession):
     data = compute_class_averages(df)
     if data is None:
         return None
     schema_data = ClassPerformanceCreate(**data)
-    return await save_class_performance(db, schema_data)
+    return await store_class_performance(db, schema_data)

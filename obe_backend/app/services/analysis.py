@@ -1,12 +1,7 @@
-#app/services/analysis.py
+# app/services/analysis.py
 
 import pandas as pd
 import logging
-from app.models.classifier import load_model, load_label_encoder, predict_student_category
-
-MODEL = load_model()
-LABEL_ENCODER = load_label_encoder()
-DEFAULT_CATEGORY = "Average"
 
 def preprocess(df, question_to_co):
     required_cols = ['Exam', 'Course', 'Register Number', 'QN.NO', 'Mark']
@@ -25,20 +20,34 @@ def preprocess(df, question_to_co):
 
     df['Question'] = df['Question'].astype(int)
     df['Mark'] = pd.to_numeric(df['Mark'], errors='coerce')
-    print("head of df after preprocessing:")
-    print(df.head())
 
-    # Debug: show unique questions before mapping
-    print("Unique questions in Excel:", df['Question'].unique())
-    print("Keys in CO mapping:", list(question_to_co.keys()))
+    # Detect total number of questions
+    total_questions = df['Question'].nunique()
+    logging.info(f"Detected total unique questions: {total_questions}")
 
-    # Map questions to COs using keys like 'Q1', 'Q2', ...
+    # Dynamic mark allocation
+    def get_max_mark(q):
+        if total_questions == 20:
+            if 1 <= q <= 10:
+                return 3
+            elif 11 <= q <= 18:
+                return 6
+            elif 19 <= q <= 20:
+                return 10
+        elif total_questions == 17:
+            if 1 <= q <= 10:
+                return 2
+            elif 11 <= q <= 15:
+                return 6
+            elif 16 <= q <= 17:
+                return 10
+        return 0
+
+    df['MaxMark'] = df['Question'].apply(get_max_mark)
+
+    # Map questions to COs
     df['CO'] = df['Question'].map(lambda q: question_to_co.get(f'Q{q}'))
     df = df.dropna(subset=['CO'])
-
-    if df.empty:
-        raise ValueError("After CO mapping, no rows remain. Check CO mapping or data preprocessing logic.")
-
     df['CO'] = df['CO'].astype(str)
 
     # Pivot to wide format: rows = students, columns = questions
@@ -53,107 +62,61 @@ def preprocess(df, question_to_co):
     q_cols_sorted = sorted([col for col in question_pivot.columns if col.isdigit()], key=lambda x: int(x))
     question_pivot = question_pivot[['Register Number', 'Exam', 'Course'] + q_cols_sorted]
 
-    # Build CO to question mapping dict: co_marks = {CO: [question_numbers]}
-    co_marks = {}
-    for q, co in question_to_co.items():
-        try:
-            q_int = int(q[1:]) if str(q).startswith('Q') else int(q)
-            co_marks.setdefault(co, []).append(str(q_int))
-        except ValueError:
-            continue
+    # Calculate acquired and max marks per CO
+    co_acquired_df = df.groupby(['Register Number', 'CO'])['Mark'].sum().unstack(fill_value=0)
+    co_max_df = df.groupby(['Register Number', 'CO'])['MaxMark'].sum().unstack(fill_value=0)
 
-    # Debug print of CO to questions mapping
-    print("\nCO to question mapping:")
-    for co, q_list in co_marks.items():
-        print(f"{co}: {q_list}")
+    co_acquired_df.columns = [f'{col}_acquired' for col in co_acquired_df.columns]
+    co_max_df.columns = [f'{col}_max' for col in co_max_df.columns]
 
-    # Calculate mean marks per CO (important change: mean instead of sum)
-    for co, q_list in co_marks.items():
-        valid_qs = [q for q in q_list if q in question_pivot.columns]
-        if not valid_qs:
-            print(f"[WARN] No valid questions found for CO {co} from {q_list}")
-            question_pivot[co] = 0
-        else:
-            question_pivot[co] = question_pivot[valid_qs].mean(axis=1)
+    # Merge into pivot
+    question_pivot = question_pivot.merge(co_acquired_df, on='Register Number', how='left')
+    question_pivot = question_pivot.merge(co_max_df, on='Register Number', how='left')
 
-    co_columns = [co for co in co_marks if co in question_pivot.columns]
+    # Extract COs
+    co_columns = [col.replace('_acquired', '') for col in co_acquired_df.columns]
 
-    # === DEBUGGING AND FIX FOR CO_Avg and CO_Max ===
-    # Make sure CO columns are numeric to avoid hidden string/NaN problems
+    # Calculate CO percentage per student
     for co in co_columns:
-        question_pivot[co] = pd.to_numeric(question_pivot[co], errors='coerce').fillna(0)
-    # checking the columns 
-    print("\nCO columns in question_pivot DataFrame:")
-    print(question_pivot.columns)
-    print("\nData types of CO columns:")
-    print(question_pivot[co_columns].dtypes)
+        acquired_col = f'{co}_acquired'
+        max_col = f'{co}_max'
+        question_pivot[co] = (question_pivot[acquired_col] / question_pivot[max_col].replace(0, 1)) * 100
 
-    print("\nSample CO marks per student before CO_Avg and CO_Max calculation:")
-    print(question_pivot[['Register Number'] + co_columns].head())
+    # Calculate CO_Avg (avg of all CO percentages) and CO_Max (total max marks across COs)
+    question_pivot['CO_Avg'] = question_pivot[co_columns].mean(axis=1)
+    question_pivot['CO_Max'] = question_pivot[[f'{co}_max' for co in co_columns]].sum(axis=1)
 
-    # Calculate mean marks per CO (CO_Avg)
-    question_pivot['CO_Avg'] = question_pivot[co_columns].mean(axis=1) if co_columns else 0
-
-    # Calculate max marks per CO (CO_Max)
-    if co_columns:
-        question_pivot['CO_Max'] = question_pivot[co_columns].max(axis=1)
-    else:
-        question_pivot['CO_Max'] = 0
-
-    print("\nCO_Avg and CO_Max per student:")
-    print(question_pivot[['Register Number', 'CO_Avg', 'CO_Max']].head())
-    # ===================================================
-
-    # Debug print final CO marks per student
-    print("\nFinal CO marks per student (with CO_Max):")
-    print(question_pivot[['Register Number'] + co_columns + ['CO_Avg', 'CO_Max']])
+    print("\nFinal CO percentage per student:")
+    print(question_pivot[['Register Number'] + co_columns + ['CO_Avg', 'CO_Max']].head())
 
     return question_pivot
 
+def add_model_predictions(df: pd.DataFrame) -> pd.DataFrame:
+    def rule_based_category(co_avg):
+        if co_avg >= 90:
+            return 'Excellent'
+        elif co_avg >= 75:
+            return 'Good'
+        elif co_avg >= 55:
+            return 'Average'
+        else:
+            return 'At-Risk'
 
-def add_model_predictions(df: pd.DataFrame, model=None, label_encoder=None) -> pd.DataFrame:
-    if model is None:
-        model = MODEL
-    if label_encoder is None:
-        label_encoder = LABEL_ENCODER
-
-    model_features = getattr(model, 'feature_names_in_', None)
-    if model_features is None:
-        raise AttributeError("Model missing 'feature_names_in_' attribute.")
-
-    # Ensure all expected CO features exist in DataFrame
-    for co in model_features:
-        if co not in df.columns:
-            df[co] = 0
-
-    try:
-        X = df[model_features]
-        print("Model input features preview:")
-        print(X.head())
-
-        y_pred_labels = predict_student_category(model, label_encoder, X)
-        df['Performance'] = y_pred_labels
-    except Exception as e:
-        logging.error(f"Error during model prediction: {e}", exc_info=True)
-        df['Performance'] = DEFAULT_CATEGORY
-
-    # Percentage calculation of student marks based on co_avg
-    if 'CO_Avg' in df.columns and 'CO_Max' in df.columns and (df['CO_Max'] != 0).any():
-        df['Percentage'] = (df['CO_Avg'] / df['CO_Max'].replace(0, 1)) * 100
-    else:
-        df['Percentage'] = 0.0
-
+    df['CO_Avg'] = df.get('CO_Avg', 0.0)
+    df['Performance'] = df['CO_Avg'].apply(rule_based_category)
+    df['Percentage'] = df['CO_Avg']
     return df
 
-
-def get_weak_cos(df: pd.DataFrame, threshold: float = 3) -> dict:
-    co_cols = [col for col in df.columns if col.startswith('CO') and col not in ('CO_Avg', 'CO_Max')]
+def get_weak_cos(df: pd.DataFrame, threshold: float = 65.0) -> dict:
+    co_cols = [
+        col for col in df.columns
+        if col.startswith('CO') and not col.endswith(('_avg', '_max', '_acquired', '_Max', '_Avg'))
+    ]
     weak_cos = {}
-
     for _, row in df.iterrows():
         reg = row.get('Register Number')
-        # Select COs with marks less than or equal to threshold
-        weak_cos[reg] = [co for co in co_cols if row.get(co, 0) <= threshold]
-
+        weak_cos[reg] = [
+            co for co in co_cols 
+            if pd.notnull(row.get(co)) and row.get(co) < threshold
+        ]
     return weak_cos
-

@@ -89,7 +89,6 @@ async def upload_excel(
 
 
         pivot_df = add_model_predictions(pivot_df)
-        print(pivot_df.head())
         await compute_and_save_class_performance(pivot_df, db)
         perf_counts = pivot_df['Performance'].value_counts().to_dict() if 'Performance' in pivot_df else {}
 
@@ -186,6 +185,7 @@ async def upload_excel(
                 await create_student_result(db, StudentResultCreate(
                     register_number=reg_no,
                     performance=performance,
+                    percentage=round(percentage, 2),
                     weak_cos=weak_cos,
                     suggestions=suggestions_dict_for_db
                 ))
