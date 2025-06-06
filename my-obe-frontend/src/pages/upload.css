@@ -1,0 +1,127 @@
+/* Container layout */
+
+.upload-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: Arial,sans-serif;
+  background-color: #f1f0ff;
+}
+
+/* Sidebar styles */
+.upload-sidebar {
+  width: 235px;
+  background-color: #0d0d2b;
+  padding: 2rem;
+  color: white;
+  /* height: calc(100vh - 3rem); */
+  margin:1.5rem;
+  border-radius: 1.3rem;
+}
+
+.upload-sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.upload-sidebar ul {
+  list-style: none;
+  padding: 0;
+
+}
+
+.upload-sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.upload-sidebar ul li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+
+
+/* Hover effect */
+.upload-sidebar ul li a:active,
+.upload-sidebar ul li a:hover {
+  background-color: #ffffff;
+  color: #0d0d2b;
+}
+
+
+.upload-sidebar .active{
+  background-color: #ffffff;
+  color: #0b2447;
+  border-radius: 20px;
+}
+
+
+.icon {
+  font-size: 20px;
+}
+
+/* Main content area */
+.upload-main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;    /* centers horizontally */
+  align-items: center;        /* centers vertically */
+  background-color: #f8f8ff;
+  /* padding: 2rem; */
+}
+
+
+
+.upload-main-content h3{
+    font-size: 25px;
+    font-weight: bold;
+}
+
+/* File upload section */
+.upload-section {
+  margin-top: 30px;
+}
+
+.browse-btn {
+  background-color: #0d0d2b;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.upload-btn {
+  background-color: #0d0d2b;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.file-status {
+  margin-left: 10px;
+  font-style: italic;
+  color: #666;
+}
+
+
+.upload-box {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 800px;
+  margin: 0 auto;
+  height: 500px; 
+           
+}
+
