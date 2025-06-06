@@ -18,4 +18,11 @@ app/env/
 .DS_Store
 Thumbs.db
 
+app/data/mock_student_data.csv
+
+# Cache folder
+cache/
+# Log files
+*.log
+
 .env

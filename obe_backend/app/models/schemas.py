@@ -1,8 +1,10 @@
-#app/models/schemas.py
+# app/models/schemas.py
 
 from pydantic import BaseModel, constr
 from typing import List, Dict, Union, Optional
 from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
 
 
 class SuggestionItem(BaseModel):
@@ -15,6 +17,7 @@ class SuggestionItem(BaseModel):
 class StudentResultCreate(BaseModel):
     register_number: str
     performance: str  # You can convert this to Enum if needed
+    percentage: float
     weak_cos: List[str]
     suggestions: Dict[str, SuggestionItem]
 
@@ -34,7 +37,8 @@ class StudyMaterialSchema(BaseModel):
 
     class Config:
         orm_mode = True
-        
+
+
 class StudentDetailsCreate(BaseModel):
     register_number: str
     exam: str
@@ -66,8 +70,33 @@ class StudentDetailsCreate(BaseModel):
     co5: Optional[float] = None
     co6: Optional[float] = None
 
+
 class StudentDetailsOut(StudentDetailsCreate):
     uploaded_at: datetime
 
     class Config:
         from_attributes = True
+
+
+
+
+class ClassPerformanceBase(BaseModel):
+    course: str
+    exam: str
+    co1_avg: Optional[float] = None
+    co2_avg: Optional[float] = None
+    co3_avg: Optional[float] = None
+    co4_avg: Optional[float] = None
+    co5_avg: Optional[float] = None
+    co6_avg: Optional[float] = None
+    class_performance: Optional[float] = None
+
+
+class ClassPerformanceCreate(ClassPerformanceBase):
+    pass
+
+
+class ClassPerformanceOut(ClassPerformanceBase):
+    class Config:
+        orm_mode = True
+

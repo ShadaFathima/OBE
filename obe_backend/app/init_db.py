@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine
 from app.services.db import Base
-from app.models import student_results ,study_material ,student_details# register models
+from app.models import student_results ,study_material ,student_details,class_performance # register models
 
 import os
 from dotenv import load_dotenv
