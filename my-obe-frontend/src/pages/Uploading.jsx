@@ -56,24 +56,8 @@ const Uploading = () => {
       </div>
       <div className="upload-main-content">
         <div className='upload-box'>
-        <h3>Question to CO Mapping</h3>
-        {qcoFields.map((field, index) => (
-          <div className="row" key={index}>
-            <input type="text" placeholder="Enter question" />
-            <input type="text" placeholder="Enter CO" />
-          </div>
-        ))}
-        <button className="add-btn" onClick={addQcoField}><FaPlus /> Add More</button>
-
-        <h3>CO Definitions</h3>
-        {coFields.map((field, index) => (
-          <div className="row" key={index}>
-            <input type="text" placeholder="Enter CO Number" />
-            <input type="text" placeholder="Enter CO Definition" />
-          </div>
-        ))}
-        <button className="add-btn" onClick={addCoField}><FaPlus /> Add More</button>
-
+        <h3>Upload Student Marks</h3>
+       
         <div className="upload-section">
           <label className="browse-btn">
             <FaFileUpload /> Browse Files

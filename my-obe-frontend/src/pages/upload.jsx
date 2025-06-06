@@ -1,12 +1,41 @@
-import React, { useState } from "react";
-import axios from "axios";
-import "./upload.css";
+import React, { useState, useEffect } from 'react';
+import './upload.css';
+import axios from 'axios';
+import { FaFileUpload } from 'react-icons/fa';
+import { NavLink } from "react-router-dom";
+import { MdManageAccounts, MdDashboard } from "react-icons/md";
+import { BiBadgeCheck } from "react-icons/bi";
+import { RiLogoutBoxRLine, RiUpload2Line } from "react-icons/ri";
 
-function Upload() {
+const Uploading = () => {
   const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("No File Chosen");
+
+  useEffect(() => {
+    document.body.style.backgroundColor = '#f8f8ff';
+    return () => {
+      document.body.style.backgroundColor = '';
+    };
+  }, []);
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+    if (selectedFile && !allowedTypes.includes(selectedFile.type)) {
+      alert("Only .xlsx Excel files are allowed.");
+      e.target.value = null; // Clear the input
+      setFile(null);
+      setFileName("No File Chosen");
+      return;
+    }
+
+    setFile(selectedFile);
+    setFileName(selectedFile?.name || "No File Chosen");
+  };
 
   const handleSubmit = async () => {
-    if (!file) return alert("Please select a file");
+    if (!file) return alert("Please select a valid Excel (.xlsx) file");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -17,36 +46,72 @@ function Upload() {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("File uploaded successfully!");
+
+      alert("✅ File uploaded successfully!");
       console.log("Server response:", response.data);
+
+      // Reset after success
+      setFile(null);
+      setFileName("No File Chosen");
     } catch (err) {
       console.error("Upload failed", err);
-      alert("Error uploading file: " + (err.response?.data?.detail || err.message));
+      alert("❌ Error uploading file: " + (err.response?.data?.detail || err.message));
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-white shadow rounded">
-      <h1 className="text-2xl font-semibold mb-6">Upload Student Marks Excel</h1>
-      <p className="text-sm text-gray-600 mb-4">
-        Ensure your Excel file has the following sheets: <strong>marks</strong>, <strong>CO_Mapping</strong>, <strong>CO_Definitions</strong>
-      </p>
+    <div className="upload-container">
+      <div className="upload-sidebar">
+        <h2>TrackMyCO</h2>
+        <ul>
+          <li>
+            <NavLink to="/teacherprofile">
+              <MdManageAccounts className="icon" /> Profile
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/uploads" className="active">
+              <RiUpload2Line className="icon" /> Upload
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/teacherdashboard">
+              <MdDashboard className="icon" /> Dashboard
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/teacherenhancement">
+              <BiBadgeCheck className="icon" /> Enhancement
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/teacherlogin">
+              <RiLogoutBoxRLine className="icon" /> Logout
+            </NavLink>
+          </li>
+        </ul>
+      </div>
 
-      <input
-        type="file"
-        accept=".xlsx"
-        onChange={(e) => setFile(e.target.files[0])}
-        className="mb-6 block"
-      />
-
-      <button
-        onClick={handleSubmit}
-        className="bg-black text-white px-6 py-2 rounded hover:bg-gray-900"
-      >
-        Upload and Analyze
-      </button>
+      <div className="upload-main-content">
+        <div className='upload-box'>
+          <h3>Upload Student Marks</h3>
+          <div className="upload-section">
+            <label className="browse-btn">
+              <FaFileUpload /> Browse Files
+              <input
+                type="file"
+                hidden
+                accept=".xlsx"
+                onChange={handleFileChange}
+              />
+            </label>
+            <span className="file-status">{fileName}</span>
+            <button className="upload-btn" onClick={handleSubmit}>Upload</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-export default Upload;
+export default Uploading;
