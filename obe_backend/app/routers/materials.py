@@ -7,7 +7,7 @@ from app.models.schemas import StudentResultCreate
 from app.services import crud
 from app.services.improvement import get_combined_study_material
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import StudentResultOut
+from app.models.schemas import StudentResultOut, StudentDetailsOut , ClassPerformanceOut
 import logging
 router = APIRouter()
 
@@ -43,4 +43,19 @@ async def get_student_result(
     data = await crud.get_student_result_by_regno(db, register_number)
     if not data:
         raise HTTPException(status_code=404, detail="Result not found")
+    return data
+
+@router.get("/student_details/{register_number}", response_model=StudentDetailsOut)
+async def get_student_details(register_number: str, db: AsyncSession = Depends(get_db)):
+    data = await crud.get_student_details_by_regno(db, register_number)
+    if not data:
+        raise HTTPException(status_code=404, detail="Student details not found")
+    return data
+
+
+@router.get("/class_performance/", response_model=ClassPerformanceOut)
+async def get_class_performance(course: str, exam: str, db: AsyncSession = Depends(get_db)):
+    data = await crud.get_class_performance(db, course, exam)
+    if not data:
+        raise HTTPException(status_code=404, detail="Class performance not found")
     return data

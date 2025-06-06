@@ -174,6 +174,11 @@ async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
         return None
 
 
+async def get_student_details_by_regno(db: AsyncSession, register_number: str):
+    result = await db.execute(select(StudentDetails).where(StudentDetails.register_number == register_number))
+    return result.scalar_one_or_none()
+
+
 # ------------------------ CLASS PERFORMANCE ------------------------
 
 async def get_class_performance(db: AsyncSession, course: str, exam: str):
@@ -214,3 +219,13 @@ async def save_class_performance(db: AsyncSession, performance_data: ClassPerfor
         await db.rollback()
         logger.error(f"Failed to save or update class performance", exc_info=e)
         return None
+
+
+async def get_class_performance(db: AsyncSession, course: str, exam: str):
+    result = await db.execute(
+        select(ClassPerformance).where(
+            ClassPerformance.course == course,
+            ClassPerformance.exam == exam
+        )
+    )
+    return result.scalar_one_or_none()
