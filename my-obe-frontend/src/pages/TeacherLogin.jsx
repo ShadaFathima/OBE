@@ -64,8 +64,7 @@ function TeacherLogin() {
 
             <button type="submit">Login</button>
 
-           <div className="signin-option">
-  Don't have an account? <Link to="/signin">Sign Up</Link>
+           <div className="signin-option"> Don't have an account? <Link to="/signin">Sign Up</Link>
   <br />
   <a href="#">Forgot Password?</a>
 </div>

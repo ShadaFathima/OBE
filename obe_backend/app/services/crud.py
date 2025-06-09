@@ -229,3 +229,10 @@ async def get_class_performance(db: AsyncSession, course: str, exam: str):
         )
     )
     return result.scalar_one_or_none()
+
+async def check_register_number_exists(db: AsyncSession, register_no: str) -> bool:
+    result = await db.execute(
+        select(StudentDetails).where(StudentDetails.register_number == register_no)
+    )
+    student = result.scalar_one_or_none()
+    return student is not None

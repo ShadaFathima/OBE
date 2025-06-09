@@ -19,7 +19,7 @@ const TeacherProfile = () => {
                    </NavLink>
                  </li>
                  <li>
-                   <NavLink to="/uploading" >
+                   <NavLink to="/upload" >
                      <RiUpload2Line className="icon" /> Upload
                    </NavLink>
                  </li>

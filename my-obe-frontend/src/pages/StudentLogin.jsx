@@ -6,7 +6,8 @@ import loginImage from '../assets/png.png';
 
 function StudentLogin() {
   const [registerNo, setRegisterNo] = useState('');
-  const [password, setPassword] = useState('');
+  //use default password for testing purposes
+  const [password, setPassword] = useState('123456'); // Default password for testing
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -15,14 +16,14 @@ function StudentLogin() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8000/login/', {
+      const response = await axios.post('http://localhost:8000/api/login/', {
         register_no: registerNo,
         password: password,
       });
 
       if (response.data.success) {
         alert('Login successful!');
-        navigate(`/student-dashboard/${registerNo}`);
+        navigate(`/studentdashboardview/${registerNo}`);
       } else {
         setError('Invalid credentials');
       }

@@ -87,27 +87,55 @@
 /* File upload section */
 .upload-section {
   margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.upload-view{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  height: fit-content;
+  padding:2rem;
+  border-radius: 1.5rem;
 }
 
 .browse-btn {
-  background-color: #0d0d2b;
-  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px dashed #666;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
   padding: 10px;
-  border-radius: 5px;
+  width: 400px;
+  height: 200px;
+  border-radius: 1rem;
   cursor: pointer;
-  display: inline-block;
+  /* gap:0.8rem; */
 }
 
 .upload-btn {
   background-color: #0d0d2b;
-  color: white;
-  border: none;
-  padding: 10px 15px;
+  color: rgb(255, 255, 255);
+  padding: 1rem 3rem;
   margin-left: 10px;
-  border-radius: 5px;
+  border-radius:3rem;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
 }
-
+.upload-icon{
+  font-size: 6rem;
+}
 .file-status {
   margin-left: 10px;
   font-style: italic;

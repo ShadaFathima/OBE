@@ -100,3 +100,11 @@ class ClassPerformanceOut(ClassPerformanceBase):
     class Config:
         orm_mode = True
 
+
+class StudentLoginRequest(BaseModel):
+    register_no: str
+    password: str  # Optional, used just for testing for now
+
+class StudentLoginResponse(BaseModel):
+    success: bool
+    message: str

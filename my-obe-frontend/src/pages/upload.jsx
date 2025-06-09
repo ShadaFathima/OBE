@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './upload.css';
 import axios from 'axios';
-import { FaFileUpload } from 'react-icons/fa';
+import { WiCloudUp } from "react-icons/wi";
 import { NavLink } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
@@ -96,8 +96,10 @@ const Uploading = () => {
         <div className='upload-box'>
           <h3>Upload Student Marks</h3>
           <div className="upload-section">
-            <label className="browse-btn">
-              <FaFileUpload /> Browse Files
+            <div className="upload-view">
+              <label className="browse-btn">
+              <WiCloudUp className='upload-icon' />
+               Browse Files
               <input
                 type="file"
                 hidden
@@ -106,6 +108,8 @@ const Uploading = () => {
               />
             </label>
             <span className="file-status">{fileName}</span>
+            </div>
+            
             <button className="upload-btn" onClick={handleSubmit}>Upload</button>
           </div>
         </div>
