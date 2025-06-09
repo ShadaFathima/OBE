@@ -1,10 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./StudentDashboardView.css";
-import { useLocation, NavLink, Link } from "react-router-dom";
+import { useParams, Link, NavLink } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { RiLogoutBoxRLine } from "react-icons/ri";
-
 import {
   LineChart,
   Line,
@@ -16,85 +15,63 @@ import {
   Bar,
   Cell,
   Legend,
+  LabelList,
 } from "recharts";
 
-// Custom Cube Bar Shape
-const renderCubeBar = (props) => {
-  const { x, y, width, height, fill } = props;
-  const depth = 10;
-
-  return (
-    <g>
-      {/* Front face */}
-      <rect x={x} y={y} width={width} height={height} fill={fill} />
-
-      {/* Top face */}
-      <polygon
-        points={`
-          ${x},${y}
-          ${x + depth},${y - depth}
-          ${x + width + depth},${y - depth}
-          ${x + width},${y}
-        `}
-        fill={shadeColor(fill, -10)}
-      />
-
-      {/* Side face */}
-      <polygon
-        points={`
-          ${x + width},${y}
-          ${x + width + depth},${y - depth}
-          ${x + width + depth},${y + height - depth}
-          ${x + width},${y + height}
-        `}
-        fill={shadeColor(fill, -20)}
-      />
-    </g>
-  );
-};
-
-function shadeColor(color, percent) {
-  let f = parseInt(color.slice(1), 16),
-    t = percent < 0 ? 0 : 255,
-    p = percent < 0 ? percent * -1 : percent,
-    R = f >> 16,
-    G = (f >> 8) & 0x00ff,
-    B = f & 0x0000ff;
-  return (
-    "#" +
-    (
-      0x1000000 +
-      (Math.round((t - R) * p) + R) * 0x10000 +
-      (Math.round((t - G) * p) + G) * 0x100 +
-      (Math.round((t - B) * p) + B)
-    )
-      .toString(16)
-      .slice(1)
-  );
-}
-
-// Chart & Score Data
-const lineData = [
-  { name: "Figma", 2020: 50, 2021: 70, 2022: 90 },
-  { name: "Sketch", 2020: 30, 2021: 80, 2022: 60 },
-  { name: "XD", 2020: 70, 2021: 60, 2022: 95 },
-  { name: "Adobe", 2020: 60, 2021: 90, 2022: 80 },
-  { name: "InVision", 2020: 40, 2021: 50, 2022: 70 },
-];
-const barData = [
-  { name: "Figma", value: 70 },
-  { name: "Sketch", value: 50 },
-  { name: "XD", value: 80 },
-  { name: "PS", value: 60 },
-  { name: "AI", value: 90 },
-];
-
-const scores = [80, 75, 88, 63, 91];
-const averageScore = 79;
-
 const StudentDashboardView = () => {
-  const location = useLocation();
+  const { registerNumber } = useParams();
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [resultData, setResultData] = useState(null);
+  const [studentDetails, setStudentDetails] = useState(null);
+
+  useEffect(() => {
+    if (!registerNumber) {
+      setError("No register number provided");
+      setLoading(false);
+      return;
+    }
+
+    async function fetchAllData() {
+      try {
+        const [resultRes, detailsRes] = await Promise.all([
+          fetch(`http://localhost:8000/api/results/${registerNumber}`),
+          fetch(`http://localhost:8000/api/student_details/${registerNumber}`),
+        ]);
+
+        if (!resultRes.ok || !detailsRes.ok) {
+          throw new Error("Failed to fetch student data");
+        }
+
+        const resultJson = await resultRes.json();
+        const detailsJson = await detailsRes.json();
+
+        setResultData(resultJson);
+        setStudentDetails(detailsJson);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAllData();
+  }, [registerNumber]);
+
+  if (loading) return <div>Loading student data...</div>;
+  if (error) return <div>Error: {error}</div>;
+
+  // Prepare CO score data
+  const coScores = [];
+  for (let i = 1; i <= 6; i++) {
+    coScores.push({
+      name: `CO${i}`,
+      score: studentDetails?.[`co${i}`] || 0,
+    });
+  }
+
+  const averageScore = resultData?.percentage || 0;
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = ((100 - averageScore) / 100) * circumference;
@@ -111,13 +88,12 @@ const StudentDashboardView = () => {
           </li>
           <li>
             <NavLink
-              to="/studentdashboardview"
-              className={({ isActive }) => isActive ? "active" : ""}
+              to={`/studentdashboardview/${registerNumber}`}
+              className={({ isActive }) => (isActive ? "active" : "")}
             >
               <MdDashboard className="stud-dash-view-icon" /> Dashboard
             </NavLink>
           </li>
-
           <li>
             <Link to="/studentperformance">
               <BiBadgeCheck className="stud-dash-view-icon" /> Performance
@@ -135,73 +111,82 @@ const StudentDashboardView = () => {
         <div className="stud-dash-view-dashboard">
           <div className="stud-dash-view-chart-section">
             <div className="stud-dash-view-chart-box">
-              <h3>CO Performance</h3>
-              <LineChart width={400} height={250} data={lineData}>
-                <Line type="monotone" dataKey="2020" stroke="#8884d8" />
-                <Line type="monotone" dataKey="2021" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="2022" stroke="#ffc658" />
+              <h3>CO Line Chart</h3>
+              <LineChart width={400} height={250} data={coScores}>
+                <Line type="monotone" dataKey="score" stroke="#8884d8" />
                 <CartesianGrid stroke="#ccc" />
                 <XAxis dataKey="name" />
-                <YAxis />
+                <YAxis domain={[0, 100]} />
                 <Tooltip />
               </LineChart>
             </div>
 
             <div className="stud-dash-view-chart-box">
-              <h3>CO Graph</h3>
-              <BarChart width={400} height={250} data={barData}>
+              <h3>CO Bar Chart</h3>
+              <BarChart width={400} height={250} data={coScores}>
                 <defs>
-                  <linearGradient id="figmaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="coGradient1" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#b8aaff" />
                     <stop offset="100%" stopColor="#8979ff" />
                   </linearGradient>
-                  <linearGradient id="sketchGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="coGradient2" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#ffc2c2" />
                     <stop offset="100%" stopColor="#ff8c8c" />
                   </linearGradient>
-                  <linearGradient id="xdGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="coGradient3" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#a0ecff" />
                     <stop offset="100%" stopColor="#6ec6ff" />
                   </linearGradient>
-                  <linearGradient id="psGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="coGradient4" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#ffe299" />
                     <stop offset="100%" stopColor="#ffd166" />
                   </linearGradient>
-                  <linearGradient id="aiGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="coGradient5" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#b0ccff" />
                     <stop offset="100%" stopColor="#80aaff" />
                   </linearGradient>
+                  <linearGradient id="coGradient6" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ff4fff" />
+                    <stop offset="100%" stopColor="#aa0f80" />
+                  </linearGradient>
                 </defs>
 
-                <Bar dataKey="value">
-                  {barData.map((entry, index) => {
-                    const gradients = [
-                      "figmaGradient",
-                      "sketchGradient",
-                      "xdGradient",
-                      "psGradient",
-                      "aiGradient",
-                    ];
-                    return (
-                      <Cell key={`cell-${index}`} fill={`url(#${gradients[index % 5]})`} />
-                    );
-                  })}
-                </Bar>
+                <Bar dataKey="score">
+  {coScores.map((_, index) => {
+    const gradients = [
+      "coGradient1",
+      "coGradient2",
+      "coGradient3",
+      "coGradient4",
+      "coGradient5",
+      "coGradient6",
+    ];
+    return (
+      <Cell
+        key={`cell-${index}`}
+        fill={`url(#${gradients[index % gradients.length]})`}
+      />
+    );
+  })}
+  <LabelList
+    dataKey="score"
+    position="top"
+    formatter={(value) => value.toFixed(2)}  // rounds to 2 decimals
+    style={{ fontSize: "13.8" }}
+  />
+</Bar>
 
                 <XAxis dataKey="name" />
                 <YAxis domain={[0, 100]} />
                 <Tooltip />
-                <Legend
-                  payload={[
-                    { value: "Figma", type: "square", color: "#8979ff" },
-                    { value: "Sketch", type: "square", color: "#ff8c8c" },
-                    { value: "XD", type: "square", color: "#6ec6ff" },
-                    { value: "PS", type: "square", color: "#ffd166" },
-                    { value: "AI", type: "square", color: "#80aaff" },
-                  ]}
-                />
+                {/* <Legend
+                  payload={coScores.map((co, i) => ({
+                    value: co.name,
+                    type: "square",
+                    color: `url(#coGradient${i + 1})`,
+                  }))}
+                /> */}
               </BarChart>
-
             </div>
           </div>
 
@@ -210,19 +195,26 @@ const StudentDashboardView = () => {
               <div className="stud-dash-view-score-section">
                 <h3>Score</h3>
                 <div className="stud-dash-view-score-cards">
-                  {scores.map((score, index) => (
+                  {coScores.map((co, index) => (
                     <div key={index} className="stud-dash-view-score-card">
-                      <div>{score}</div>
-                      <small>CO{index + 1}</small>
+                      <div>{co.score.toFixed(2)}</div>
+                      <small>{co.name}</small>
                     </div>
                   ))}
+
                 </div>
               </div>
               <div className="stud-dash-view-feedback-box">
                 <h3>Feedback</h3>
-                <p>
-                  Lorem Ipsum is simply dummy text of the printing and typesetting industry..
-                </p>
+               <p>
+  Every expert was once a beginner. This is your stage 
+🎯 {" "}
+  <span style={{ color:"rgb(255, 133, 133)", fontWeight: "600", fontSize: "1.1rem" }}>
+    {resultData?.performance || "No feedback available"}
+  </span>
+  . Let’s start from here.
+</p>
+
               </div>
             </div>
 
@@ -258,7 +250,7 @@ const StudentDashboardView = () => {
                     fill="rgba(255, 146, 133, 0.7)"
                     fontWeight="light"
                   >
-                    {averageScore}%
+                    {Math.round(averageScore)}%
                   </text>
                 </svg>
               </div>

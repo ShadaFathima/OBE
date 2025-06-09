@@ -117,7 +117,7 @@ body {
 /* Score and Average Combined Row */
 .stud-dash-view-score-average-row {
   display: flex;
-  margin-top: 3rem;
+  margin-top: 1rem;
 }
 
 .stud-dash-view-score-feed-container {
@@ -236,6 +236,7 @@ body {
   color: #333;
   font-size: 14px;
   text-align: left;
+  overflow: hidden;
 }
 
 .stud-dash-view-dashboard{
