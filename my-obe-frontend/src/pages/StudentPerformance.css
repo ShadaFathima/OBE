@@ -4,6 +4,7 @@
   width: 100vw;
   background-color: #f1f0ff;
   font-family: Arial, sans-serif;
+  overflow-y: scroll;
 }
 
 /* Sidebar */
@@ -63,7 +64,6 @@
   background-color: #ffffff;
   border-radius: 10px !important;
   height: fit-content;
-  overflow: hidden;
   padding: 0  2rem !important;
 }
 

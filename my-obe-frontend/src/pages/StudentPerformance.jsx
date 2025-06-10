@@ -1,36 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./StudentPerformance.css";
-import { useLocation, NavLink, Link } from "react-router-dom";
+import { useLocation, NavLink, Link, useNavigate } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 
 const StudentPerformance = () => {
   const location = useLocation();
-  const [registerNumber, setRegisterNumber] = useState("");
-  const [weakCOs, setWeakCOs] = useState([]);
-  const [suggestions, setSuggestions] = useState({});
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchStudentResult = async () => {
-      try {
-        const regNo = localStorage.getItem("register_number");
-        setRegisterNumber(regNo);
+  const { weakCOs, suggestions, registerNumber } = location.state || {};
 
-        const response = await fetch(`http://localhost:8000/results/${regNo}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch result");
-        }
-        const data = await response.json();
-        setWeakCOs(data.weak_cos || []);
-        setSuggestions(data.suggestions || {});
-      } catch (error) {
-        console.error("Error fetching student result:", error);
-      }
-    };
-
-    fetchStudentResult();
-  }, []);
+  // Redirect to dashboard if state is missing
+  React.useEffect(() => {
+    if (!weakCOs || !suggestions || !registerNumber) {
+      navigate("/studentdashboard");
+    }
+  }, [weakCOs, suggestions, registerNumber, navigate]);
 
   return (
     <div className="stud-perf-student-container">
@@ -100,6 +86,7 @@ const StudentPerformance = () => {
         {/* Videos */}
         <div className="stud-perf-section">
           <h3>Videos</h3>
+          
           <div className="stud-perf-video-thumbnails">
             {weakCOs.flatMap((co, index) =>
               (suggestions[co]?.youtube_videos || []).map((video, vidIndex) => (

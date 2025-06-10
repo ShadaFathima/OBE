@@ -95,7 +95,13 @@ const StudentDashboardView = () => {
             </NavLink>
           </li>
           <li>
-            <Link to="/studentperformance">
+            <Link to="/studentperformance"
+            state={{
+                weakCOs: resultData?.weak_cos || [],
+                suggestions: resultData?.suggestions || {},
+                registerNumber: registerNumber,
+              }}
+            >
               <BiBadgeCheck className="stud-dash-view-icon" /> Performance
             </Link>
           </li>
