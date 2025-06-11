@@ -1,0 +1,122 @@
+.Individualupload-student-entry-container {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  height: 100vh - 1rem;
+  width: 100vw;
+}
+
+.Individualupload-student-entry-container h2 {
+  font-size: 20px;
+  margin-bottom: 1rem;
+  margin-top: 3rem;
+  margin-left: 2rem;
+}
+
+.Individualupload-student-entry-fields {
+  display: flex;
+  gap: 2rem;
+  margin: 2rem;
+  margin-bottom: 1rem;
+}
+
+.Individualupload-student-entry-fields div {
+  flex: 1;
+}
+
+.Individualupload-student-entry-fields label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 1px;
+}
+
+.Individualupload-student-entry-fields input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.Individualupload-student-entry-dropdown {
+  margin-bottom: 2rem;
+}
+
+
+.main-input{
+  margin: 2rem;
+}
+.Individual-upload-regno{
+  margin-bottom: 2rem;
+  font-size: 16px;
+
+}
+
+.Individualupload-student-entry-dropdown label {
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.Individualupload-student-entry-dropdown select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.Individualupload-student-entry-sections {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.Individualupload-section h4 {
+  margin-bottom: 1rem;
+}
+
+.Individualupload-input-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2px;
+}
+
+.Individualupload-input-row input {
+  width: 60px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.Individualupload-student-entry-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.Individualupload-add-btn,
+.Individualupload-done-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: green;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.Individualupload-add-btn:hover,
+.Individualupload-done-btn:hover {
+  background-color: #006400;
+}
+
+
+
+.Individualupload-input-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.Individualupload-input-row label {
+  width: 40px;
+  margin-right: 10px;
+  font-weight: bold;
+}

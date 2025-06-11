@@ -1,0 +1,136 @@
+.Comapping-student-entry-container {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  background-color: #fff;
+  width: 100vw;
+}
+
+.Comapping-student-entry-container h2 {
+  font-size: 20px;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  margin-left: 2rem;
+}
+
+.Comapping-student-entry-fields {
+  display: flex;
+  gap: 2rem;
+  margin: 2rem;
+  margin-bottom: 1rem;
+}
+
+.Comapping-student-entry-fields div {
+  flex: 1;
+}
+
+.Comapping-student-entry-fields label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.Comapping-student-entry-fields input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #8f8f8f;
+  border-radius: 5px;
+  background-color: #f7fcff;
+}
+
+.Comapping-student-entry-dropdown select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #8f8f8f;
+  background-color: #f7fcff;
+}
+
+.Comapping-main-input {
+  margin: 2rem;
+}
+
+.Comapping-flex-container {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.Comapping-left {
+  flex: 1;
+}
+
+.Comapping-right {
+  flex: 1;
+}
+
+.Comapping-student-entry-sections {
+  display: flex;
+  gap: 2rem;
+}
+
+.Comapping-section h4 {
+  margin-bottom: 1rem;
+}
+
+.Comapping-input-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 6px;
+}
+
+.Comapping-input-row label {
+  width: 40px;
+  font-weight: bold;
+}
+
+.Comapping-input-row input {
+  width: 60px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.Comapping-co-definitions {
+  padding: 1rem 0;
+}
+
+.Comapping-co-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.Comapping-co-box label {
+  min-width: 50px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.Comapping-co-box input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.Comapping-student-entry-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.Comapping-done-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: rgb(18, 9, 47);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.Comapping-done-btn:hover {
+  background-color: #360794;
+}
+

@@ -260,3 +260,36 @@ body {
 
 
 
+
+.stud-dash-view-score-card-with-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.stud-dash-view-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 110%; /* places it above the card */
+  left: 80%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 100px;
+  background-color: #ffffff;
+  color: #333;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease;
+  font-size: 15px;
+  z-index: 10;
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.stud-dash-view-score-card-with-tooltip:hover .stud-dash-view-tooltip {
+  visibility: visible;
+  opacity: 1;
+}

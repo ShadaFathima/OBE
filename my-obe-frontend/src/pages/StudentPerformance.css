@@ -4,8 +4,9 @@
   width: 100vw;
   background-color: #f1f0ff;
   font-family: Arial, sans-serif;
-  overflow-y: scroll;
+  overflow: hidden; 
 }
+
 
 /* Sidebar */
 .stud-perf-sidebar {
@@ -13,9 +14,11 @@
   background-color: #0d0d2b;
   padding: 2rem;
   color: white;
+  margin: 1.5rem;
   border-radius: 1.3rem;
-  margin: 1.5rem ;
+  position: sticky;
 }
+
 
 .stud-perf-sidebar h2 {
   margin-bottom: 30px;
@@ -60,12 +63,14 @@
 /* Main Content */
 .stud-perf-main-content {
   flex-grow: 1;
-  margin :1.5rem 1.5rem 1.5rem 0;
+  margin: 1.5rem 1.5rem 1.5rem 0;
   background-color: #ffffff;
   border-radius: 10px !important;
-  height: fit-content;
-  padding: 0  2rem !important;
+  height: calc(100vh - 3rem); 
+  overflow-y: auto; 
+  padding: 0 2rem !important;
 }
+
 
 .stud-perf-main-content h2 {
   font-size: 25px;
@@ -129,4 +134,17 @@
   background-color: white;
   color: #0b2447;
   border-radius: 20px;
+}
+
+
+
+
+
+.stud-perf-main-content {
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For IE and Edge */
+}
+
+.stud-perf-main-content::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
 }

@@ -16,8 +16,11 @@ import Signin from './pages/Signin';
 
 import Speedometer from './components/Speedometer';
 import Loader from './components/Loader';
-import Upload from "./pages/upload"; // Assuming the filename is upload.jsx and same folder
+import Upload from "./pages/upload"; 
+import Uploadfirstpage from './pages/Uploadfirstpage';
 // import Uploading from './pages/Uploading';
+import Comapping from "./pages/Comapping"
+import Individualupload from './pages/Individualupload';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +62,9 @@ function App() {
       <Route path="/speedometer" element={<Speedometer value={741} />} />
       <Route path="/loader" element={<Loader />} />
       <Route path="/upload" element={<Upload />} />
+      <Route path="/uploadfirstpage" element={<Uploadfirstpage />} />
+      <Route path="/individualupload" element={<Individualupload />} />
+      <Route path="/comapping" element={<Comapping/>} />
       {/* <Route path='/uploading' element={<Uploading/>} /> */}
     </Routes>
   );

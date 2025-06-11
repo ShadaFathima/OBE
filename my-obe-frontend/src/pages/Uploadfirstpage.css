@@ -1,0 +1,111 @@
+/* Container layout */
+
+.upload-first-page-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: Arial,sans-serif;
+  background-color: #f1f0ff;
+}
+
+/* Sidebar styles */
+.upload-first-page-sidebar {
+  width: 235px;
+  background-color: #0d0d2b;
+  padding: 2rem;
+  color: white;
+  /* height: calc(100vh - 3rem); */
+  margin:1.5rem;
+  border-radius: 1.3rem;
+}
+
+.upload-first-page-sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+  text-align: center;
+}
+
+.upload-first-page-sidebar ul {
+  list-style: none;
+  padding: 0;
+
+}
+
+.upload-first-page-sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.upload-first-page-sidebar ul li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+
+
+/* Hover effect */
+.upload-first-page-sidebar ul li a:active,
+.upload-first-page-sidebar ul li a:hover {
+  background-color: #ffffff;
+  color: #0d0d2b;
+}
+
+
+.upload-first-page-sidebar .active{
+  background-color: #ffffff;
+  color: #0b2447;
+  border-radius: 20px;
+}
+
+
+.icon {
+  font-size: 20px;
+}
+
+/* Main content area */
+.upload-first-page-main-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start; /* align to top */
+  justify-content: center;
+  background-color: #f8f8ff;
+  padding: 7rem;
+}
+
+.upload-first-page-options-container {
+  display: flex;
+  gap: 7rem;
+  flex-wrap: wrap;
+}
+
+
+.upload-first-page-option-box {
+  width: 380px;
+  height: 250px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  text-decoration: none;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upload-first-page-option-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.upload-first-page-icon {
+  font-size: 40px;
+  margin-bottom: 0.8rem;
+}

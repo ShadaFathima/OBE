@@ -24,11 +24,6 @@ const StudentPerformance = () => {
         <h2>TrackMyCO</h2>
         <ul>
           <li>
-            <Link to="/studentdashboard">
-              <MdManageAccounts className="stud-perf-icon" /> Profile
-            </Link>
-          </li>
-          <li>
             <Link to={`/studentdashboardview/${registerNumber}`}>
               <MdDashboard className="stud-perf-icon" /> Dashboard
             </Link>
@@ -38,7 +33,7 @@ const StudentPerformance = () => {
               to="/studentperformance"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              <BiBadgeCheck className="stud-perf-icon" /> Performance
+              <BiBadgeCheck className="stud-perf-icon" /> Enhancement
             </NavLink>
           </li>
           <li>

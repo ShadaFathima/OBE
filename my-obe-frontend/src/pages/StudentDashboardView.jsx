@@ -18,6 +18,8 @@ import {
   LabelList,
 } from "recharts";
 
+// ... All imports remain the same
+
 const StudentDashboardView = () => {
   const { registerNumber } = useParams();
 
@@ -62,12 +64,12 @@ const StudentDashboardView = () => {
   if (loading) return <div>Loading student data...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  // Prepare CO score data
   const coScores = [];
   for (let i = 1; i <= 6; i++) {
     coScores.push({
       name: `CO${i}`,
       score: studentDetails?.[`co${i}`] || 0,
+      description: resultData?.suggestions?.[`CO${i}`]?.definition || "No description available",
     });
   }
 
@@ -82,11 +84,6 @@ const StudentDashboardView = () => {
         <h2>TrackMyCO</h2>
         <ul>
           <li>
-            <Link to="/studentdashboard">
-              <MdManageAccounts className="stud-dash-view-icon" /> Profile
-            </Link>
-          </li>
-          <li>
             <NavLink
               to={`/studentdashboardview/${registerNumber}`}
               className={({ isActive }) => (isActive ? "active" : "")}
@@ -95,14 +92,15 @@ const StudentDashboardView = () => {
             </NavLink>
           </li>
           <li>
-            <Link to="/studentperformance"
-            state={{
+            <Link
+              to="/studentperformance"
+              state={{
                 weakCOs: resultData?.weak_cos || [],
                 suggestions: resultData?.suggestions || {},
                 registerNumber: registerNumber,
               }}
             >
-              <BiBadgeCheck className="stud-dash-view-icon" /> Performance
+              <BiBadgeCheck className="stud-dash-view-icon" /> Enhancement
             </Link>
           </li>
           <li>
@@ -116,6 +114,7 @@ const StudentDashboardView = () => {
       <div className="stud-dash-view-main-content">
         <div className="stud-dash-view-dashboard">
           <div className="stud-dash-view-chart-section">
+            {/* Line Chart */}
             <div className="stud-dash-view-chart-box">
               <h3>CO Line Chart</h3>
               <LineChart width={400} height={250} data={coScores}>
@@ -127,6 +126,7 @@ const StudentDashboardView = () => {
               </LineChart>
             </div>
 
+            {/* Bar Chart */}
             <div className="stud-dash-view-chart-box">
               <h3>CO Bar Chart</h3>
               <BarChart width={400} height={250} data={coScores}>
@@ -155,43 +155,35 @@ const StudentDashboardView = () => {
                     <stop offset="0%" stopColor="#ff4fff" />
                     <stop offset="100%" stopColor="#aa0f80" />
                   </linearGradient>
+
                 </defs>
-
                 <Bar dataKey="score">
-  {coScores.map((_, index) => {
-    const gradients = [
-      "coGradient1",
-      "coGradient2",
-      "coGradient3",
-      "coGradient4",
-      "coGradient5",
-      "coGradient6",
-    ];
-    return (
-      <Cell
-        key={`cell-${index}`}
-        fill={`url(#${gradients[index % gradients.length]})`}
-      />
-    );
-  })}
-  <LabelList
-    dataKey="score"
-    position="top"
-    formatter={(value) => value.toFixed(2)}  // rounds to 2 decimals
-    style={{ fontSize: "13.8" }}
-  />
-</Bar>
-
+                  {coScores.map((_, index) => {
+                    const gradients = [
+                      "coGradient1",
+                      "coGradient2",
+                      "coGradient3",
+                      "coGradient4",
+                      "coGradient5",
+                      "coGradient6",
+                    ];
+                    return (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={`url(#${gradients[index % gradients.length]})`}
+                      />
+                    );
+                  })}
+                  <LabelList
+                    dataKey="score"
+                    position="top"
+                    formatter={(value) => value.toFixed(2)}
+                    style={{ fontSize: "13.8" }}
+                  />
+                </Bar>
                 <XAxis dataKey="name" />
                 <YAxis domain={[0, 100]} />
                 <Tooltip />
-                {/* <Legend
-                  payload={coScores.map((co, i) => ({
-                    value: co.name,
-                    type: "square",
-                    color: `url(#coGradient${i + 1})`,
-                  }))}
-                /> */}
               </BarChart>
             </div>
           </div>
@@ -202,25 +194,37 @@ const StudentDashboardView = () => {
                 <h3>Score</h3>
                 <div className="stud-dash-view-score-cards">
                   {coScores.map((co, index) => (
-                    <div key={index} className="stud-dash-view-score-card">
-                      <div>{co.score.toFixed(2)}</div>
-                      <small>{co.name}</small>
+                    <div
+                      key={index}
+                      className="stud-dash-view-score-card-with-tooltip"
+                    >
+                      <div className="stud-dash-view-score-card">
+                        <div>{co.score.toFixed(2)}</div>
+                        <small>{co.name}</small>
+                      </div>
+                      <div className="stud-dash-view-tooltip">
+                        <p>{co.description}</p>
+                      </div>
                     </div>
                   ))}
-
                 </div>
               </div>
+
               <div className="stud-dash-view-feedback-box">
                 <h3>Feedback</h3>
-               <p>
-  Every expert was once a beginner. This is your stage 
-🎯 {" "}
-  <span style={{ color:"rgb(255, 133, 133)", fontWeight: "600", fontSize: "1.1rem" }}>
-    {resultData?.performance || "No feedback available"}
-  </span>
-  . Let’s start from here.
-</p>
-
+                <p>
+                  Every expert was once a beginner. This is your stage 🎯{" "}
+                  <span
+                    style={{
+                      color: "rgb(255, 133, 133)",
+                      fontWeight: "600",
+                      fontSize: "1.1rem",
+                    }}
+                  >
+                    {resultData?.performance || "No feedback available"}
+                  </span>
+                  . Let’s start from here.
+                </p>
               </div>
             </div>
 
