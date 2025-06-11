@@ -1,6 +1,6 @@
 # app/models/schemas.py
 
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, constr,EmailStr
 from typing import List, Dict, Union, Optional
 from datetime import datetime
 from pydantic import BaseModel
@@ -108,3 +108,17 @@ class StudentLoginRequest(BaseModel):
 class StudentLoginResponse(BaseModel):
     success: bool
     message: str
+
+class TeacherCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class TeacherOut(BaseModel):
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
+
+class TeacherLoginRequest(BaseModel):
+    email: EmailStr
+    password: str

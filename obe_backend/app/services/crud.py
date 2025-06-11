@@ -8,8 +8,11 @@ from app.models.student_results import StudentResult
 from app.models.schemas import StudentResultCreate, SuggestionItem
 from app.models.study_material import StudyMaterial
 from app.models.student_details import StudentDetails
+from app.models.teacherSignup import Teacher
 from app.models.schemas import StudentDetailsCreate, ClassPerformanceCreate
 from app.models.class_performance import ClassPerformance
+from passlib.context import CryptContext
+
 
 logger = logging.getLogger(__name__)
 
@@ -236,3 +239,33 @@ async def check_register_number_exists(db: AsyncSession, register_no: str) -> bo
     )
     student = result.scalar_one_or_none()
     return student is not None
+
+#---------------------------------------Teacher Sign Up ---------------------------------------------------------------
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+# Hash password
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+# Verify password
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+# Create teacher
+async def create_teacher(db: AsyncSession, email: str, password: str) -> Teacher:
+    hashed_pw = get_password_hash(password)
+    new_teacher = Teacher(email=email, hashed_password=hashed_pw)
+    db.add(new_teacher)
+    await db.commit()
+    await db.refresh(new_teacher)
+    return new_teacher
+
+# Authenticate teacher
+async def authenticate_teacher(db: AsyncSession, email: str, password: str) -> Teacher | None:
+    result = await db.execute(select(Teacher).where(Teacher.email == email))
+    teacher = result.scalar_one_or_none()
+    if teacher and verify_password(password, teacher.hashed_password):
+        return teacher
+    return None

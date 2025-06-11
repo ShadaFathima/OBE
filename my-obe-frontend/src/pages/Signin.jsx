@@ -1,46 +1,69 @@
 import React, { useState } from 'react';
 import './SignIn.css';
-import loginImage from '../assets/png.png'; // Make sure this path matches your project
+import loginImage from '../assets/png.png';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const validateAllFields = () => {
+    const newErrors = {};
 
+    // Email validation
     if (!emailRegex.test(email)) {
-      alert('Please enter a valid email address.');
-      clearForm();
-      return;
+      newErrors.email = 'Invalid email format.';
+      setEmail('');
     }
 
+    // Password validation
     if (!passwordRegex.test(password)) {
-      alert(
-        'Password must be at least 8 characters long and include at least one uppercase letter, one number, and one special character.'
-      );
-      clearForm();
-      return;
+      newErrors.password = 'Must include uppercase, number & special character.';
+      setPassword('');
     }
 
-    if (password !== confirmPassword) {
-      alert('Passwords do not match.');
-      clearForm();
-      return;
+    // Confirm password validation
+    if (confirmPassword !== password || confirmPassword === '') {
+      newErrors.confirmPassword = 'Passwords do not match.';
+      setConfirmPassword('');
     }
 
-    alert('Successfully signed in!');
-    clearForm();
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
   };
 
-  const clearForm = () => {
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const isValid = validateAllFields();
+    if (!isValid) return;
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/teacher/signup', {
+        email,
+        password,
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        navigate('/teacherlogin');
+      } else {
+        setErrors({ general: 'Signup failed. Please try again.' });
+      }
+    } catch (error) {
+      console.error(error);
+      setErrors({ general: 'Signup failed. User might already exist.' });
+    }
   };
 
   return (
@@ -50,33 +73,56 @@ function SignIn() {
           <img src={loginImage} alt="Login" />
         </div>
         <div className="signin-right">
-          <h2>SIGN-IN</h2>
+          <h2>SIGN-UP</h2>
           <form onSubmit={handleSubmit}>
-            <label>E-mail</label>
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div className="input-group">
+              <input
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={validateAllFields}
+                placeholder=" "
+                required
+              />
+              <label className={email ? 'filled' : ''}>E-mail</label>
+              {errors.email && <p className="error">{errors.email}</p>}
+            </div>
 
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="input-group password-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={validateAllFields}
+                placeholder=" "
+                required
+              />
+              <label className={password ? 'filled' : ''}>Password</label>
+              <span onClick={() => setShowPassword(!showPassword)} className="eye-icon">
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+              {errors.password && <p className="error">{errors.password}</p>}
+            </div>
 
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <div className="input-group password-wrapper">
+              <input
+                type={showConfirm ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={validateAllFields}
+                placeholder=" "
+                required
+              />
+              <label className={confirmPassword ? 'filled' : ''}>Confirm Password</label>
+              <span onClick={() => setShowConfirm(!showConfirm)} className="eye-icon">
+                {showConfirm ? <FaEyeSlash /> : <FaEye />}
+              </span>
+              {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
+            </div>
 
-            <button type="submit">Login</button>
+            {errors.general && <p className="error">{errors.general}</p>}
+
+            <button type="submit">Sign Up</button>
           </form>
         </div>
       </div>

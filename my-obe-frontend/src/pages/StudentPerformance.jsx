@@ -53,7 +53,7 @@ const StudentPerformance = () => {
         <h2 className="stud-perf-title">Suggestions to Improve your Performance</h2>
 
         {/* Documentations */}
-        <div className="stud-perf-section">
+        {/* <div className="stud-perf-section">
           <h3>Documentations</h3>
           <div className="stud-perf-doc-cards">
             {weakCOs.length === 0 ? (
@@ -81,7 +81,7 @@ const StudentPerformance = () => {
               ))
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* Videos */}
         <div className="stud-perf-section">

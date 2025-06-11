@@ -7,9 +7,12 @@ from app.models.schemas import StudentResultCreate
 from app.services import crud
 from app.services.improvement import get_combined_study_material
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import StudentResultOut, StudentDetailsOut , ClassPerformanceOut , StudentLoginRequest, StudentLoginResponse
+from app.models.schemas import StudentResultOut, StudentDetailsOut , ClassPerformanceOut , StudentLoginRequest, StudentLoginResponse, TeacherCreate, TeacherOut,TeacherLoginRequest
 import logging
+from app.models.teacherSignup import Teacher
+
 router = APIRouter()
+
 
 logger = logging.getLogger(__name__)
 
@@ -68,3 +71,26 @@ async def student_login(data: StudentLoginRequest, db: AsyncSession = Depends(ge
         return StudentLoginResponse(success=True, message="Login successful")
     else:
         return StudentLoginResponse(success=False, message="Invalid register number")
+    
+@router.post("/teacher/signup", response_model=TeacherOut)
+async def signup_teacher(data: TeacherCreate, db: AsyncSession = Depends(get_db)):
+    teacher = await crud.create_teacher(db, data.email, data.password)
+    return teacher
+
+
+@router.post("/teacher/login")
+async def login_teacher(data: TeacherLoginRequest, db: AsyncSession = Depends(get_db)):
+    teacher = await crud.authenticate_teacher(db, data.email, data.password)
+
+    if not teacher:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    return {"success": True}
+@router.post("/teacher/login")
+async def login_teacher(data: TeacherLoginRequest, db: AsyncSession = Depends(get_db)):
+    teacher = await crud.authenticate_teacher(db, data.email, data.password)
+
+    if not teacher:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+
+    return {"success": True}

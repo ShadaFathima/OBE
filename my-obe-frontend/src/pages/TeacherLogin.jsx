@@ -1,14 +1,16 @@
+// TeacherLogin.js
 import React, { useState } from 'react';
 import './Login.css';
 import loginImage from '../assets/png.png';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function TeacherLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,7 +18,6 @@ function TeacherLogin() {
 
     if (!emailRegex.test(email)) {
       alert('Please enter a valid email address.');
-      clearForm();
       return;
     }
 
@@ -24,11 +25,26 @@ function TeacherLogin() {
       alert(
         'Password must be at least 8 characters long and include at least one uppercase letter, one number, and one special character.'
       );
-      clearForm();
       return;
     }
 
-    alert('Form submitted successfully!');
+    try {
+      const response = await axios.post('http://localhost:8000/api/teacher/login', {
+        email,
+        password,
+      });
+
+      if (response.status === 200 && response.data.success) {
+        alert('Login successful!');
+        navigate('/teacherdashboard');
+      } else {
+        alert('Invalid credentials');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Login failed: Check email and password.');
+    }
+
     clearForm();
   };
 
@@ -64,11 +80,11 @@ function TeacherLogin() {
 
             <button type="submit">Login</button>
 
-           <div className="signin-option"> Don't have an account? <Link to="/signin">Sign Up</Link>
-  <br />
-  <a href="#">Forgot Password?</a>
-</div>
-
+            <div className="signin-option">
+              Don't have an account? <Link to="/signin">Sign Up</Link>
+              <br />
+              <a href="#">Forgot Password?</a>
+            </div>
           </form>
         </div>
       </div>

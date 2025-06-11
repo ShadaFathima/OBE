@@ -211,7 +211,7 @@ const TeacherDashboard = () => {
           <div className="teac-dash-score-average-row">
             <div className="teac-dash-score-feed-container">
               <div className="teac-dash-score-section">
-                <h3>Score</h3>
+                <h3>Category</h3>
                 <div className="teac-dash-score-cards">
                   {scores.map((score, index) => (
                     <div key={index} className="teac-dash-score-card">
