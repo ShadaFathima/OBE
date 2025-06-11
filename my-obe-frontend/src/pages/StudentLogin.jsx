@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Login.css';
 import loginImage from '../assets/png.png';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 function StudentLogin() {
   const [registerNo, setRegisterNo] = useState('');
-  //use default password for testing purposes
   const [password, setPassword] = useState('123456'); // Default password for testing
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -42,25 +43,34 @@ function StudentLogin() {
         <div className="login-right">
           <h2>LOGIN</h2>
           <form onSubmit={handleSubmit}>
-            <label>Register No:</label>
-            <input
-              type="text"
-              value={registerNo}
-              onChange={(e) => setRegisterNo(e.target.value)}
-              required
-            />
+            <div className="input-group">
+              <input
+                type="text"
+                value={registerNo}
+                onChange={(e) => setRegisterNo(e.target.value)}
+                placeholder=" "
+                required
+              />
+              <label className={registerNo ? 'filled' : ''}>Register No</label>
+            </div>
 
-            <label>Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div className="input-group password-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder=" "
+                required
+              />
+              <label className={password ? 'filled' : ''}>Password</label>
+              <span onClick={() => setShowPassword(!showPassword)} className="eye-icon">
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+
+            {error && <p className="error">{error}</p>}
 
             <button type="submit">Login</button>
-
-            {error && <p className="error-text">{error}</p>}
 
             <div className="signin-option">
               <a href="#">Forgot Password?</a>
