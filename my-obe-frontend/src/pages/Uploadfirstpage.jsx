@@ -30,11 +30,6 @@ const Uploadfirstpage = () => {
                         </NavLink>
                     </li>
                     <li>
-                        <NavLink to="/teacherenhancement">
-                            <BiBadgeCheck className="icon" /> Enhancement
-                        </NavLink>
-                    </li>
-                    <li>
                         <NavLink to="/teacherlogin">
                             <RiLogoutBoxRLine className="icon" /> Logout
                         </NavLink>
@@ -44,11 +39,11 @@ const Uploadfirstpage = () => {
 
             <div className="upload-first-page-main-content">
                 <div className="upload-first-page-options-container">
-                    <NavLink to="/upload-first-page-class" className="upload-first-page-option-box">
+                    <NavLink to="/upload" className="upload-first-page-option-box">
                         <RiUploadCloud2Fill className="upload-first-page-icon" />
                         <span>Upload Class-wise<br />Marks</span>
                     </NavLink>
-                    <NavLink to="/upload-first-page-individual" className="upload-first-page-option-box">
+                    <NavLink to="/comapping" className="upload-first-page-option-box">
                         <MdUpload className="upload-first-page-icon" />
                         <span>Individual Entry</span>
                     </NavLink>

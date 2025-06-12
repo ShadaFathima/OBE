@@ -107,23 +107,13 @@ const TeacherDashboard = () => {
         <h2>TrackMyCO</h2>
         <ul>
           <li>
-            <NavLink to="/teacherprofile" >
-              <MdManageAccounts className="icon" /> Profile
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/upload" >
+            <NavLink to="/uploadfirstpage" >
               <RiUpload2Line className="icon" /> Upload
             </NavLink>
           </li>
           <li>
             <NavLink to="/teacherdashboard" className="active">
               <MdDashboard className="icon" /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/teacherenhancement" >
-              <BiBadgeCheck className="icon" /> Enhancement
             </NavLink>
           </li>
           <li>

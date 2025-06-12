@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Comapping.css';
 
@@ -14,6 +14,21 @@ const Comapping = () => {
   const [coDefinitions, setCoDefinitions] = useState(Array(6).fill(''));
 
   const navigate = useNavigate();
+
+  const markInputRefs = useRef([]);
+  const coInputRefs = useRef([]);
+
+  const totalQuestions =
+    sectionRows[courseType].section1 +
+    sectionRows[courseType].section2 +
+    sectionRows[courseType].section3;
+
+  useEffect(() => {
+    // Initialize input refs
+    markInputRefs.current = Array(totalQuestions)
+      .fill()
+      .map((_, i) => markInputRefs.current[i] || React.createRef());
+  }, [courseType]);
 
   const handleCourseTypeChange = (e) => {
     setCourseType(e.target.value);
@@ -41,17 +56,42 @@ const Comapping = () => {
     });
   };
 
-  const renderSection = (title, rows) => (
+  const handleMarkKeyDown = (e, index) => {
+    if (e.key === 'Enter' && index < totalQuestions - 1) {
+      e.preventDefault();
+      markInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleCoKeyDown = (e, index) => {
+    if (e.key === 'Enter' && index < coDefinitions.length - 1) {
+      e.preventDefault();
+      coInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const renderSection = (title, rows, startQNo) => (
     <div className="Comapping-section">
       <h4>{title}</h4>
-      {Array.from({ length: rows }).map((_, i) => (
-        <div className="Comapping-input-row" key={i}>
-          <label>{`Q${i + 1}`}</label>
-          <input type="text" />
-        </div>
-      ))}
+      {Array.from({ length: rows }).map((_, i) => {
+        const qNo = startQNo + i;
+        return (
+          <div className="Comapping-input-row" key={qNo}>
+            <label>{`Q${qNo}`}</label>
+            <input
+              type="text"
+              ref={(el) => (markInputRefs.current[qNo - 1] = el)}
+              onKeyDown={(e) => handleMarkKeyDown(e, qNo - 1)}
+            />
+          </div>
+        );
+      })}
     </div>
   );
+
+  const section1Count = sectionRows[courseType].section1;
+  const section2Count = sectionRows[courseType].section2;
+  const section3Count = sectionRows[courseType].section3;
 
   return (
     <div className="Comapping-student-entry-container">
@@ -92,9 +132,9 @@ const Comapping = () => {
           <div className="Comapping-left">
             <h2 className="comap-heading">CO Mapping</h2>
             <div className="Comapping-student-entry-sections">
-              {renderSection("Section 1", sectionRows[courseType].section1)}
-              {renderSection("Section 2", sectionRows[courseType].section2)}
-              {renderSection("Section 3", sectionRows[courseType].section3)}
+              {renderSection('Section 1', section1Count, 1)}
+              {renderSection('Section 2', section2Count, section1Count + 1)}
+              {renderSection('Section 3', section3Count, section1Count + section2Count + 1)}
             </div>
           </div>
 
@@ -109,6 +149,8 @@ const Comapping = () => {
                     type="text"
                     value={co}
                     onChange={(e) => handleCoChange(i, e.target.value)}
+                    onKeyDown={(e) => handleCoKeyDown(e, i)}
+                    ref={(el) => (coInputRefs.current[i] = el)}
                     placeholder={`Enter CO${i + 1} Definition`}
                   />
                 </div>
@@ -118,9 +160,20 @@ const Comapping = () => {
         </div>
 
         <div className="Comapping-student-entry-buttons">
-          <button className="Comapping-done-btn" onClick={handleDoneClick}>
-            DONE
-          </button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button
+              className="Comapping-done-btn"
+              onClick={() => navigate(-1)}
+            >
+              BACK
+            </button>
+            <button
+              className="Comapping-done-btn"
+              onClick={handleDoneClick}
+            >
+              DONE
+            </button>
+          </div>
         </div>
       </div>
     </div>

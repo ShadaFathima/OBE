@@ -1,5 +1,5 @@
 .Comapping-student-entry-container {
-  padding: 2rem;
+  padding: 2rem 10rem;
   font-family: Arial, sans-serif;
   background-color: #fff;
   width: 100vw;
@@ -34,14 +34,12 @@
   padding: 10px;
   border: 1px solid #8f8f8f;
   border-radius: 5px;
-  background-color: #f7fcff;
 }
 
 .Comapping-student-entry-dropdown select {
   padding: 8px;
   border-radius: 5px;
   border: 1px solid #8f8f8f;
-  background-color: #f7fcff;
 }
 
 .Comapping-main-input {

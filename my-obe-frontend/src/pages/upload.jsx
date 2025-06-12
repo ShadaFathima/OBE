@@ -65,23 +65,13 @@ const Uploading = () => {
         <h2>TrackMyCO</h2>
         <ul>
           <li>
-            <NavLink to="/teacherprofile">
-              <MdManageAccounts className="icon" /> Profile
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/uploads" className="active">
+            <NavLink to="/uploadfirstpage" className="active">
               <RiUpload2Line className="icon" /> Upload
             </NavLink>
           </li>
           <li>
             <NavLink to="/teacherdashboard">
               <MdDashboard className="icon" /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/teacherenhancement">
-              <BiBadgeCheck className="icon" /> Enhancement
             </NavLink>
           </li>
           <li>

@@ -29,11 +29,6 @@ const TeacherProfile = () => {
                    </NavLink>
                  </li>
                  <li>
-                   <NavLink to="/teacherenhancement">
-                     <BiBadgeCheck className="icon" /> Enhancement
-                   </NavLink>
-                 </li>
-                 <li>
                    <NavLink to="/teacherlogin" >
                      <RiLogoutBoxRLine className="icon" /> Logout
                    </NavLink>
