@@ -119,12 +119,15 @@ form {
 form button {
   background-color: #1f2a44;
   color: white;
-  padding: 12px;
+  padding: 1rem 3.5rem;
   border: none;
-  border-radius: 25px;
+  border-radius: 5rem;
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s ease;
+  margin: 10px auto 0; /* Center horizontally */
+  display: block;       /* Required for horizontal centering */
+  width: fit-content;   /* Keeps the button tight around its content */
 }
 
 form button:hover {
