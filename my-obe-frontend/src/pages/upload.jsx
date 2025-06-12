@@ -70,7 +70,7 @@ const Uploading = () => {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/teacherdashboard">
+            <NavLink to="/teacherexamcourseselect">
               <MdDashboard className="icon" /> Dashboard
             </NavLink>
           </li>

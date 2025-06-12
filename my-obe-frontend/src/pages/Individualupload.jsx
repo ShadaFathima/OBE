@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './Individualupload.css';
 
 const sectionRows = {
@@ -22,6 +22,8 @@ const sectionMarks = {
 
 const Individualupload = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Navigation hook
+
   const { courseName, examName, courseType: selectedCourseType, coDefinitions } = location.state || {};
 
   const [registerNumber, setRegisterNumber] = useState('');
@@ -157,7 +159,12 @@ const Individualupload = () => {
 
           <div className="Individualupload-button-box">
             <button className="Individualupload-add-btn" onClick={handleAdd}>ADD ＋</button>
-            <button className="Individualupload-done-btn">DONE</button>
+            <button
+              className="Individualupload-done-btn"
+              onClick={() => navigate('/uploadfirstpage')}
+            >
+              DONE
+            </button>
           </div>
         </div>
 

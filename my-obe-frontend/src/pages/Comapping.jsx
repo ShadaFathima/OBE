@@ -24,7 +24,7 @@ const Comapping = () => {
     sectionRows[courseType].section3;
 
   useEffect(() => {
-    // Initialize input refs
+    // Initialize mark input refs
     markInputRefs.current = Array(totalQuestions)
       .fill()
       .map((_, i) => markInputRefs.current[i] || React.createRef());
@@ -41,11 +41,25 @@ const Comapping = () => {
   };
 
   const handleDoneClick = () => {
-    if (!courseName || !examName) {
-      alert('Please enter both course name and exam name.');
+    // Validation
+    if (!courseName.trim() || !examName.trim()) {
+      alert('Please enter both Course Name and Exam Name.');
       return;
     }
 
+    const emptyCOs = coDefinitions.some((co) => co.trim() === '');
+    if (emptyCOs) {
+      alert('Please fill all CO Definitions.');
+      return;
+    }
+
+    const emptyMarks = markInputRefs.current.some((input) => !input?.value?.trim());
+    if (emptyMarks) {
+      alert('Please enter marks for all questions.');
+      return;
+    }
+
+    // Proceed if all valid
     navigate('/individualupload', {
       state: {
         courseName,
