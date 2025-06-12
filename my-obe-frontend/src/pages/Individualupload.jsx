@@ -1,47 +1,68 @@
 import React, { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import './Individualupload.css';
 
 const sectionRows = {
   Major: { section1: 10, section2: 8, section3: 2 },
-  Minor: { section1: 10, section2: 5, section3: 2 }
+  Minor: { section1: 10, section2: 5, section3: 2 },
 };
 
 const sectionMarks = {
   Major: {
     section1: { min: 0, max: 3 },
     section2: { min: 0, max: 6 },
-    section3: { min: 0, max: 10 }
+    section3: { min: 0, max: 10 },
   },
   Minor: {
     section1: { min: 0, max: 2 },
     section2: { min: 0, max: 6 },
-    section3: { min: 0, max: 10 }
-  }
+    section3: { min: 0, max: 10 },
+  },
 };
 
 const Individualupload = () => {
-  const [courseType, setCourseType] = useState('Major');
+  const location = useLocation();
+  const { courseName, examName, courseType: selectedCourseType, coDefinitions } = location.state || {};
+
   const [registerNumber, setRegisterNumber] = useState('');
   const [marks, setMarks] = useState({});
   const inputRefs = useRef([]);
 
-  const handleCourseTypeChange = (e) => {
-    setCourseType(e.target.value);
-  };
+  const totalQuestions =
+    sectionRows[selectedCourseType].section1 +
+    sectionRows[selectedCourseType].section2 +
+    sectionRows[selectedCourseType].section3;
 
   const handleMarkChange = (index, value) => {
     setMarks((prev) => ({ ...prev, [index]: value }));
   };
 
   const handleAdd = () => {
-    console.log("Saving Data:", { courseType, registerNumber, marks });
+    if (!registerNumber.trim()) {
+      alert("Register Number is required.");
+      return;
+    }
 
-    // Reset only register number and marks
+    for (let i = 0; i < totalQuestions; i++) {
+      if (marks[i] === undefined || marks[i] === '') {
+        alert(`Please enter mark for Question ${i + 1}.`);
+        return;
+      }
+    }
+
+    console.log("Saving Data:", {
+      courseName,
+      examName,
+      courseType: selectedCourseType,
+      registerNumber,
+      marks,
+      coDefinitions
+    });
+
     setRegisterNumber('');
     setMarks({});
   };
 
-  // Reset ref array each render
   inputRefs.current = [];
 
   const renderSection = (title, rows, sectionKey, courseType, startQno, startIndex) => {
@@ -90,9 +111,9 @@ const Individualupload = () => {
     );
   };
 
-  const section1Rows = sectionRows[courseType].section1;
-  const section2Rows = sectionRows[courseType].section2;
-  const section3Rows = sectionRows[courseType].section3;
+  const section1Rows = sectionRows[selectedCourseType].section1;
+  const section2Rows = sectionRows[selectedCourseType].section2;
+  const section3Rows = sectionRows[selectedCourseType].section3;
 
   let qNo = 1;
   let inputIndex = 0;
@@ -104,16 +125,16 @@ const Individualupload = () => {
       <div className="Individualupload-student-entry-fields">
         <div>
           <label>Course</label>
-          <input type="text" placeholder="STA1FM102 - Fundamentals of Statistics" disabled />
+          <input type="text" value={courseName || ''} disabled />
         </div>
         <div>
           <label>Exam Name</label>
-          <input type="text" placeholder="Enter exam name" disabled />
+          <input type="text" value={examName || ''} disabled />
         </div>
 
         <div className="Individualupload-student-entry-dropdown">
           <label>Course Type:</label>
-          <select value={courseType} onChange={handleCourseTypeChange}>
+          <select value={selectedCourseType} disabled>
             <option value="Major">Major</option>
             <option value="Minor">Minor</option>
           </select>
@@ -121,28 +142,31 @@ const Individualupload = () => {
       </div>
 
       <hr />
+
       <div className="main-input">
-        <div className="Individual-upload-regno">
-          <label>Register Number:</label>
-          <input
-            type="text"
-            placeholder="Enter register number"
-            value={registerNumber}
-            onChange={(e) => setRegisterNumber(e.target.value)}
-          />
+        <div className="Individualupload-regno-actions-row">
+          <div className="Individualupload-regno-box">
+            <label>Register Number:</label>
+            <input
+              type="text"
+              placeholder="Enter register number"
+              value={registerNumber}
+              onChange={(e) => setRegisterNumber(e.target.value)}
+            />
+          </div>
+
+          <div className="Individualupload-button-box">
+            <button className="Individualupload-add-btn" onClick={handleAdd}>ADD ＋</button>
+            <button className="Individualupload-done-btn">DONE</button>
+          </div>
         </div>
 
         <div className="Individualupload-student-entry-sections">
-          {renderSection("Section 1", section1Rows, "section1", courseType, qNo, inputIndex)}
+          {renderSection("Section 1", section1Rows, "section1", selectedCourseType, qNo, inputIndex)}
           {(() => { qNo += section1Rows; inputIndex += section1Rows; return null; })()}
-          {renderSection("Section 2", section2Rows, "section2", courseType, qNo, inputIndex)}
+          {renderSection("Section 2", section2Rows, "section2", selectedCourseType, qNo, inputIndex)}
           {(() => { qNo += section2Rows; inputIndex += section2Rows; return null; })()}
-          {renderSection("Section 3", section3Rows, "section3", courseType, qNo, inputIndex)}
-        </div>
-
-        <div className="Individualupload-student-entry-buttons">
-          <button className="Individualupload-add-btn" onClick={handleAdd}>ADD ＋</button>
-          <button className="Individualupload-done-btn">DONE</button>
+          {renderSection("Section 3", section3Rows, "section3", selectedCourseType, qNo, inputIndex)}
         </div>
       </div>
     </div>

@@ -1,8 +1,7 @@
 .Individualupload-student-entry-container {
-  padding: 2rem;
+  padding: 2rem 10rem;
   font-family: Arial, sans-serif;
   background-color: #fff;
-  height: 100vh - 1rem;
   width: 100vw;
 }
 
@@ -37,20 +36,6 @@
   border-radius: 5px;
 }
 
-.Individualupload-student-entry-dropdown {
-  margin-bottom: 2rem;
-}
-
-
-.main-input{
-  margin: 2rem;
-}
-.Individual-upload-regno{
-  margin-bottom: 2rem;
-  font-size: 16px;
-
-}
-
 .Individualupload-student-entry-dropdown label {
   margin-right: 10px;
   font-size: 14px;
@@ -60,6 +45,10 @@
   padding: 8px;
   border-radius: 5px;
   border: 1px solid #ccc;
+}
+
+.main-input {
+  margin: 2rem;
 }
 
 .Individualupload-student-entry-sections {
@@ -74,8 +63,14 @@
 
 .Individualupload-input-row {
   display: flex;
-  gap: 1rem;
+  align-items: center;
   margin-bottom: 2px;
+  gap: 1rem;
+}
+
+.Individualupload-input-row label {
+  width: 40px;
+  font-weight: bold;
 }
 
 .Individualupload-input-row input {
@@ -83,12 +78,33 @@
   height: 30px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  text-align: center;
+  margin:0.3rem;
 }
 
-.Individualupload-student-entry-buttons {
+.Individualupload-regno-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.Individualupload-regno-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.Individualupload-regno-box input {
+  padding: 8px;
+  min-width: 200px;
+  border-radius: 0.3rem;
+  border:1px solid #1f2a40;
+}
+
+.Individualupload-button-box {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
 }
 
 .Individualupload-add-btn,
@@ -96,7 +112,7 @@
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
-  background-color: green;
+  background-color: #1f2a40;
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -104,19 +120,5 @@
 
 .Individualupload-add-btn:hover,
 .Individualupload-done-btn:hover {
-  background-color: #006400;
-}
-
-
-
-.Individualupload-input-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.Individualupload-input-row label {
-  width: 40px;
-  margin-right: 10px;
-  font-weight: bold;
+  background-color: #1f2a4f;
 }
