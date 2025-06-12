@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './SignIn.css';
 import loginImage from '../assets/png.png';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // ✅ FIXED: added Link here
 import axios from 'axios';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 
 function SignIn() {
   const [email, setEmail] = useState('');
@@ -122,7 +122,9 @@ function SignIn() {
             </div>
 
             {errors.general && <p className="error">{errors.general}</p>}
-              <div className="login-option">
+
+            <button type="submit">Sign Up</button>
+            <div className="login-option">
               Already have an account? <Link to="/teacherlogin">Log In</Link>
               <br />
             </div>
