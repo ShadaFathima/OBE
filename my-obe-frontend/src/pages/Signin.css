@@ -130,3 +130,21 @@ form button {
 form button:hover {
   background-color: #31456a;
 }
+
+
+.login-option {
+  margin-top: 15px;
+  font-size: 14px;
+  text-align: center;
+  color: #333;
+}
+
+.login-option a {
+  color: #243457;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-option a:hover {
+  text-decoration: underline;
+}
