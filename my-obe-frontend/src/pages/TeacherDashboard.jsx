@@ -1,12 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./TeacherDashboard.css";
-import { useLocation, NavLink, Link } from "react-router-dom";
-import { MdManageAccounts, MdDashboard } from "react-icons/md";
-import { BiBadgeCheck } from "react-icons/bi";
-import { RiLogoutBoxRLine } from "react-icons/ri";
-import { RiUpload2Line } from "react-icons/ri";
-
-
+import { useLocation, NavLink } from "react-router-dom";
+import { MdDashboard } from "react-icons/md";
+import axios from "axios";
+import { RiLogoutBoxRLine, RiUpload2Line } from "react-icons/ri";
 import {
   LineChart,
   Line,
@@ -20,86 +17,120 @@ import {
   Legend,
 } from "recharts";
 
-// Custom Cube Bar Shape
-const renderCubeBar = (props) => {
-  const { x, y, width, height, fill } = props;
-  const depth = 10;
-
-  return (
-    <g>
-      {/* Front face */}
-      <rect x={x} y={y} width={width} height={height} fill={fill} />
-
-      {/* Top face */}
-      <polygon
-        points={`
-          ${x},${y}
-          ${x + depth},${y - depth}
-          ${x + width + depth},${y - depth}
-          ${x + width},${y}
-        `}
-        fill={shadeColor(fill, -10)}
-      />
-
-      {/* Side face */}
-      <polygon
-        points={`
-          ${x + width},${y}
-          ${x + width + depth},${y - depth}
-          ${x + width + depth},${y + height - depth}
-          ${x + width},${y + height}
-        `}
-        fill={shadeColor(fill, -20)}
-      />
-    </g>
-  );
+const coGradients = {
+  CO1: "figmaGradient",
+  CO2: "sketchGradient",
+  CO3: "xdGradient",
+  CO4: "psGradient",
+  CO5: "aiGradient",
+  CO6: "co6Gradient",
 };
 
-function shadeColor(color, percent) {
-  let f = parseInt(color.slice(1), 16),
-    t = percent < 0 ? 0 : 255,
-    p = percent < 0 ? percent * -1 : percent,
-    R = f >> 16,
-    G = (f >> 8) & 0x00ff,
-    B = f & 0x0000ff;
-  return (
-    "#" +
-    (
-      0x1000000 +
-      (Math.round((t - R) * p) + R) * 0x10000 +
-      (Math.round((t - G) * p) + G) * 0x100 +
-      (Math.round((t - B) * p) + B)
-    )
-      .toString(16)
-      .slice(1)
-  );
-}
-
-// Chart & Score Data
-const lineData = [
-  { name: "Figma", 2020: 50, 2021: 70, 2022: 90 },
-  { name: "Sketch", 2020: 30, 2021: 80, 2022: 60 },
-  { name: "XD", 2020: 70, 2021: 60, 2022: 95 },
-  { name: "Adobe", 2020: 60, 2021: 90, 2022: 80 },
-  { name: "InVision", 2020: 40, 2021: 50, 2022: 70 },
-];
-const barData = [
-  { name: "Figma", value: 70 },
-  { name: "Sketch", value: 50 },
-  { name: "XD", value: 80 },
-  { name: "PS", value: 60 },
-  { name: "AI", value: 90 },
-];
-
-const scores = [80, 75, 88, 63, 91];
-const averageScore = 79;
+const coLegendColors = {
+  CO1: "#8979ff",
+  CO2: "#ff8c8c",
+  CO3: "#6ec6ff",
+  CO4: "#ffd166",
+  CO5: "#80aaff",
+  CO6: "#ffaaf0",
+};
 
 const TeacherDashboard = () => {
   const location = useLocation();
+  const { course, exam } = location.state || {};
+  const [performanceData, setPerformanceData] = useState([]);
+  const [latestExamData, setLatestExamData] = useState(null);
 
+  useEffect(() => {
+    const fetchAllPerformance = async () => {
+      if (!course) return;
+      try {
+        const response = await axios.get("http://localhost:8000/api/class_performance/all_exams/", {
+          params: { course },
+        });
+        setPerformanceData(response.data);
+      } catch (error) {
+        console.error("Error fetching all exam performances:", error);
+      }
+    };
+
+    const fetchLatestPerformance = async () => {
+      if (!course || !exam) return;
+      try {
+        const response = await axios.get("http://localhost:8000/api/class_performance/", {
+          params: { course, exam },
+        });
+        setLatestExamData(response.data);
+      } catch (error) {
+        console.error("Error fetching latest performance:", error);
+      }
+    };
+
+    fetchAllPerformance();
+    fetchLatestPerformance();
+  }, [course, exam]);
+
+  const exams = performanceData.map((item) => item.exam);
+
+  const lineData = ["CO1", "CO2", "CO3", "CO4", "CO5", "CO6"].map((co, coIndex) => {
+    const coData = { name: co };
+    performanceData.forEach((item) => {
+      coData[item.exam] = item[`co${coIndex + 1}_avg`];
+    });
+    return coData;
+  });
+
+  const examColors = [
+    "#8979ff", "#ff8c8c", "#6ec6ff", "#ffd166", "#80aaff", "#ffaaf0",
+    "#a0d2eb", "#ffbdbd", "#d1f0ff", "#fff3c4", "#bfd7ff", "#ffd1dd",
+  ];
+
+  const scores = latestExamData
+    ? [
+        latestExamData.co1_avg,
+        latestExamData.co2_avg,
+        latestExamData.co3_avg,
+        latestExamData.co4_avg,
+        latestExamData.co5_avg,
+        latestExamData.co6_avg,
+      ]
+    : [0, 0, 0, 0, 0, 0];
+
+  const averageScore = latestExamData?.class_performance ?? 0;
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = ((100 - averageScore) / 100) * circumference;
+
+  const barData = scores.map((value, index) => ({
+    name: `CO${index + 1}`,
+    value,
+  }));
+
+  const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div
+        className="custom-tooltip"
+        style={{
+          backgroundColor: "#fff",
+          padding: "10px",
+          border: "1px solid #ccc",
+          color: "#333",
+          fontSize: "12px",
+        }}
+      >
+        <p><strong>{label}</strong></p>
+        {payload.map((item, i) => (
+          <p key={i} style={{ color: item.stroke }}>
+            {item.dataKey}: {item.value?.toFixed(1)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 
   return (
     <div className="teac-dash-student-container">
@@ -107,17 +138,17 @@ const TeacherDashboard = () => {
         <h2>TrackMyCO</h2>
         <ul>
           <li>
-            <NavLink to="/uploadfirstpage" >
+            <NavLink to="/uploadfirstpage">
               <RiUpload2Line className="icon" /> Upload
             </NavLink>
           </li>
           <li>
-            <NavLink to="/teacherdashboard" className="active">
+            <NavLink to="/teacherexamcourseselect" className="active">
               <MdDashboard className="icon" /> Dashboard
             </NavLink>
           </li>
           <li>
-            <NavLink to="/teacherlogin" >
+            <NavLink to="/teacherlogin">
               <RiLogoutBoxRLine className="icon" /> Logout
             </NavLink>
           </li>
@@ -130,14 +161,20 @@ const TeacherDashboard = () => {
             <div className="teac-dash-chart-box">
               <h3>CO Performance</h3>
               <LineChart width={400} height={250} data={lineData}>
-                <Line type="monotone" dataKey="2020" stroke="#8884d8" />
-                <Line type="monotone" dataKey="2021" stroke="#82ca9d" />
-                <Line type="monotone" dataKey="2022" stroke="#ffc658" />
+                {performanceData.map((exam, i) => (
+                  <Line
+                    key={i}
+                    type="monotone"
+                    dataKey={exam.exam}
+                    stroke={["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#00bcd4"][i % 5]}
+                  />
+                ))}
                 <CartesianGrid stroke="#ccc" />
                 <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
+                <YAxis domain={[0, 100]} />
+                <Tooltip content={<CustomTooltip />} />
               </LineChart>
+
             </div>
 
             <div className="teac-dash-chart-box">
@@ -145,56 +182,39 @@ const TeacherDashboard = () => {
               <BarChart width={400} height={250} data={barData}>
                 <defs>
                   <linearGradient id="figmaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#b8aaff" />
+                    <stop offset="0%" stopColor="#a0d2eb" />
                     <stop offset="100%" stopColor="#8979ff" />
                   </linearGradient>
                   <linearGradient id="sketchGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ffc2c2" />
+                    <stop offset="0%" stopColor="#ffbdbd" />
                     <stop offset="100%" stopColor="#ff8c8c" />
                   </linearGradient>
                   <linearGradient id="xdGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a0ecff" />
+                    <stop offset="0%" stopColor="#d1f0ff" />
                     <stop offset="100%" stopColor="#6ec6ff" />
                   </linearGradient>
                   <linearGradient id="psGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ffe299" />
+                    <stop offset="0%" stopColor="#fff3c4" />
                     <stop offset="100%" stopColor="#ffd166" />
                   </linearGradient>
                   <linearGradient id="aiGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#b0ccff" />
+                    <stop offset="0%" stopColor="#bfd7ff" />
                     <stop offset="100%" stopColor="#80aaff" />
                   </linearGradient>
+                  <linearGradient id="co6Gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ffd1dd" />
+                    <stop offset="100%" stopColor="#aa0f80" />
+                  </linearGradient>
                 </defs>
-
                 <Bar dataKey="value">
-                  {barData.map((entry, index) => {
-                    const gradients = [
-                      "figmaGradient",
-                      "sketchGradient",
-                      "xdGradient",
-                      "psGradient",
-                      "aiGradient",
-                    ];
-                    return (
-                      <Cell key={`cell-${index}`} fill={`url(#${gradients[index % 5]})`} />
-                    );
-                  })}
+                  {barData.map((entry, index) => (
+                    <Cell key={index} fill={`url(#${coGradients[entry.name] || "figmaGradient"})`} />
+                  ))}
                 </Bar>
-
                 <XAxis dataKey="name" />
                 <YAxis domain={[0, 100]} />
                 <Tooltip />
-                <Legend
-                  payload={[
-                    { value: "Figma", type: "square", color: "#8979ff" },
-                    { value: "Sketch", type: "square", color: "#ff8c8c" },
-                    { value: "XD", type: "square", color: "#6ec6ff" },
-                    { value: "PS", type: "square", color: "#ffd166" },
-                    { value: "AI", type: "square", color: "#80aaff" },
-                  ]}
-                />
               </BarChart>
-
             </div>
           </div>
 
@@ -205,7 +225,7 @@ const TeacherDashboard = () => {
                 <div className="teac-dash-score-cards">
                   {scores.map((score, index) => (
                     <div key={index} className="teac-dash-score-card">
-                      <div>{score}</div>
+                      <div>{score.toFixed(1)}</div>
                       <small>CO{index + 1}</small>
                     </div>
                   ))}
@@ -214,7 +234,11 @@ const TeacherDashboard = () => {
               <div className="teac-dash-feedback-box">
                 <h3>Feedback</h3>
                 <p>
-                  Lorem Ipsum is simply dummy text of the printing and typesetting industry...
+                  {averageScore >= 85
+                    ? "Excellent overall CO performance."
+                    : averageScore >= 65
+                    ? "Good performance, but some COs can be improved."
+                    : "Needs improvement in several COs."}
                 </p>
               </div>
             </div>
@@ -248,10 +272,10 @@ const TeacherDashboard = () => {
                     y="115"
                     textAnchor="middle"
                     fontSize="48"
-                    fill="rgba(255, 146, 133, 0.7)"
+                    fill="#ff9285"
                     fontWeight="light"
                   >
-                    {averageScore}%
+                    {averageScore.toFixed(1)}%
                   </text>
                 </svg>
               </div>

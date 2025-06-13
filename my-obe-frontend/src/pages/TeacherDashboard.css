@@ -107,7 +107,7 @@ body {
 .teac-dash-chart-section {
   display: flex;
   justify-content: space-around;
-  gap: 3rem;
+  gap: 2rem;
   height: fit-content;
 }
 
@@ -135,7 +135,6 @@ body {
 /* Score and Average Combined Row */
 .teac-dash-score-average-row {
   display: flex;
-  margin-top: 3rem;
 }
 
 .teac-dash-score-feed-container {

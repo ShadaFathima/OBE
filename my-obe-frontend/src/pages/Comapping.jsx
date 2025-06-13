@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Comapping.css';
 
 const sectionRows = {
@@ -12,9 +13,10 @@ const Comapping = () => {
   const [courseName, setCourseName] = useState('');
   const [examName, setExamName] = useState('');
   const [coDefinitions, setCoDefinitions] = useState(Array(6).fill(''));
+  const [mappingErrors, setMappingErrors] = useState({});
+  const [definitionErrors, setDefinitionErrors] = useState(Array(6).fill(false));
 
   const navigate = useNavigate();
-
   const markInputRefs = useRef([]);
   const coInputRefs = useRef([]);
 
@@ -24,7 +26,6 @@ const Comapping = () => {
     sectionRows[courseType].section3;
 
   useEffect(() => {
-    // Initialize mark input refs
     markInputRefs.current = Array(totalQuestions)
       .fill()
       .map((_, i) => markInputRefs.current[i] || React.createRef());
@@ -40,34 +41,98 @@ const Comapping = () => {
     setCoDefinitions(updated);
   };
 
-  const handleDoneClick = () => {
-    // Validation
-    if (!courseName.trim() || !examName.trim()) {
-      alert('Please enter both Course Name and Exam Name.');
-      return;
-    }
-
-    const emptyCOs = coDefinitions.some((co) => co.trim() === '');
-    if (emptyCOs) {
-      alert('Please fill all CO Definitions.');
-      return;
-    }
-
-    const emptyMarks = markInputRefs.current.some((input) => !input?.value?.trim());
-    if (emptyMarks) {
-      alert('Please enter marks for all questions.');
-      return;
-    }
-
-    // Proceed if all valid
-    navigate('/individualupload', {
-      state: {
-        courseName,
-        examName,
-        courseType,
-        coDefinitions,
-      },
+  const handleMarkBlur = (index) => {
+    const value = markInputRefs.current[index]?.value?.trim();
+    setMappingErrors((prev) => {
+      const newErrors = { ...prev };
+      if (!value) {
+        newErrors[index] = true;
+      } else {
+        delete newErrors[index];
+      }
+      return newErrors;
     });
+  };
+
+  const handleDefinitionBlur = (index) => {
+    const value = coDefinitions[index]?.trim();
+    setDefinitionErrors((prev) => {
+      const newErrors = [...prev];
+      newErrors[index] = !value;
+      return newErrors;
+    });
+  };
+
+  const handleDoneClick = async () => {
+    if (!courseName.trim() || !examName.trim()) {
+      alert('Please enter both course name and exam name.');
+      return;
+    }
+
+    const questionToCO = {};
+    const mappingErrs = {};
+    const coDefsErrs = Array(6).fill(false);
+
+    markInputRefs.current.forEach((ref, index) => {
+      const value = ref?.value?.trim();
+      if (!value) {
+        mappingErrs[index] = true;
+      } else {
+        questionToCO[`Q${index + 1}`] = value.toUpperCase();
+      }
+    });
+
+    coDefinitions.forEach((def, idx) => {
+      if (!def.trim()) {
+        coDefsErrs[idx] = true;
+      }
+    });
+
+    setMappingErrors(mappingErrs);
+    setDefinitionErrors(coDefsErrs);
+
+    if (Object.keys(mappingErrs).length > 0 || coDefsErrs.includes(true)) {
+      alert('Please fill all CO Mappings and CO Definitions.');
+      return;
+    }
+
+    const coDefsJson = {};
+    coDefinitions.forEach((def, idx) => {
+      coDefsJson[`CO${idx + 1}`] = def.trim();
+    });
+
+    const payload = {
+      course: courseName,
+      exam: examName,
+      question_to_co: questionToCO,
+      co_definition: coDefsJson,
+    };
+
+    try {
+      await axios.post("http://localhost:8000/api/co-mapping/", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      alert('Mapping and definitions saved successfully!');
+      navigate('/individualupload', {
+        state: {
+          courseName,
+          examName,
+          courseType,
+          coDefinitions,
+          questionToCO,
+        },
+      });
+    } catch (error) {
+      if (error.response) {
+        console.error("422 Error details:", error.response.data);
+        alert("Error: " + JSON.stringify(error.response.data.detail));
+      } else {
+        console.error("Unknown error:", error);
+      }
+    }
   };
 
   const handleMarkKeyDown = (e, index) => {
@@ -85,7 +150,7 @@ const Comapping = () => {
   };
 
   const renderSection = (title, rows, startQNo) => (
-    <div className="Comapping-section">
+    <div className="Comapping-section" key={title}>
       <h4>{title}</h4>
       {Array.from({ length: rows }).map((_, i) => {
         const qNo = startQNo + i;
@@ -96,6 +161,12 @@ const Comapping = () => {
               type="text"
               ref={(el) => (markInputRefs.current[qNo - 1] = el)}
               onKeyDown={(e) => handleMarkKeyDown(e, qNo - 1)}
+              onChange={(e) => {
+                e.target.value = e.target.value.toUpperCase();
+              }}
+              onBlur={() => handleMarkBlur(qNo - 1)}
+              placeholder={`CO for Q${qNo}`}
+              className={mappingErrors[qNo - 1] ? 'input-error' : ''}
             />
           </div>
         );
@@ -142,7 +213,6 @@ const Comapping = () => {
 
       <div className="Comapping-main-input">
         <div className="Comapping-flex-container">
-          {/* Left Side: CO Mapping */}
           <div className="Comapping-left">
             <h2 className="comap-heading">CO Mapping</h2>
             <div className="Comapping-student-entry-sections">
@@ -152,7 +222,6 @@ const Comapping = () => {
             </div>
           </div>
 
-          {/* Right Side: CO Definitions */}
           <div className="Comapping-right">
             <h2 className="codef-heading">CO Definitions</h2>
             <div className="Comapping-co-definitions">
@@ -164,8 +233,10 @@ const Comapping = () => {
                     value={co}
                     onChange={(e) => handleCoChange(i, e.target.value)}
                     onKeyDown={(e) => handleCoKeyDown(e, i)}
+                    onBlur={() => handleDefinitionBlur(i)}
                     ref={(el) => (coInputRefs.current[i] = el)}
                     placeholder={`Enter CO${i + 1} Definition`}
+                    className={definitionErrors[i] ? 'input-error' : ''}
                   />
                 </div>
               ))}
@@ -175,16 +246,10 @@ const Comapping = () => {
 
         <div className="Comapping-student-entry-buttons">
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button
-              className="Comapping-done-btn"
-              onClick={() => navigate(-1)}
-            >
+            <button className="Comapping-done-btn" onClick={() => navigate(-1)}>
               BACK
             </button>
-            <button
-              className="Comapping-done-btn"
-              onClick={handleDoneClick}
-            >
+            <button className="Comapping-done-btn" onClick={handleDoneClick}>
               DONE
             </button>
           </div>

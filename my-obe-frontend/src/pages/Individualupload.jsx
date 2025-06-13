@@ -22,9 +22,15 @@ const sectionMarks = {
 
 const Individualupload = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // Navigation hook
+  const navigate = useNavigate(); // ✅ FIXED: this was missing in your original code
 
-  const { courseName, examName, courseType: selectedCourseType, coDefinitions } = location.state || {};
+  const {
+    courseName = '',
+    examName = '',
+    courseType: selectedCourseType = 'Major',
+    coDefinitions = [],
+    questionToCO = {},
+  } = location.state || {};
 
   const [registerNumber, setRegisterNumber] = useState('');
   const [marks, setMarks] = useState({});
@@ -39,7 +45,7 @@ const Individualupload = () => {
     setMarks((prev) => ({ ...prev, [index]: value }));
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!registerNumber.trim()) {
       alert("Register Number is required.");
       return;
@@ -52,17 +58,52 @@ const Individualupload = () => {
       }
     }
 
-    console.log("Saving Data:", {
-      courseName,
-      examName,
-      courseType: selectedCourseType,
-      registerNumber,
-      marks,
-      coDefinitions
+    const formattedMarks = {};
+    Object.entries(marks).forEach(([index, value]) => {
+      formattedMarks[`Q${parseInt(index) + 1}`] = Number(value);
     });
 
-    setRegisterNumber('');
-    setMarks({});
+    const coDefinitionsObject = {};
+    coDefinitions.forEach((def, index) => {
+      coDefinitionsObject[`CO${index + 1}`] = def;
+    });
+
+    const payload = {
+      course: courseName,
+      exam: examName,
+      course_type: selectedCourseType,
+      register_number: registerNumber.trim(),
+      marks: formattedMarks,
+      question_to_co: questionToCO,
+      co_definitions: coDefinitionsObject,
+    };
+
+    console.log("Saving Data:", payload);
+
+    try {
+      const response = await fetch("http://localhost:8000/api/analyze_individual/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.detail}`);
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Result from backend:", result);
+
+      setRegisterNumber('');
+      setMarks({});
+    } catch (error) {
+      console.error("Error while sending data:", error);
+      alert("Something went wrong while saving data.");
+    }
   };
 
   inputRefs.current = [];
@@ -127,11 +168,11 @@ const Individualupload = () => {
       <div className="Individualupload-student-entry-fields">
         <div>
           <label>Course</label>
-          <input type="text" value={courseName || ''} disabled />
+          <input type="text" value={courseName} disabled />
         </div>
         <div>
           <label>Exam Name</label>
-          <input type="text" value={examName || ''} disabled />
+          <input type="text" value={examName} disabled />
         </div>
 
         <div className="Individualupload-student-entry-dropdown">
@@ -159,12 +200,7 @@ const Individualupload = () => {
 
           <div className="Individualupload-button-box">
             <button className="Individualupload-add-btn" onClick={handleAdd}>ADD ＋</button>
-            <button
-              className="Individualupload-done-btn"
-              onClick={() => navigate('/uploadfirstpage')}
-            >
-              DONE
-            </button>
+            <button className="Individualupload-done-btn" onClick={() => navigate('/uploadfirstpage')}>DONE</button>
           </div>
         </div>
 

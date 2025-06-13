@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
-
+from app.services import individual_analysis
 from app.routers import predict, materials, upload, login
 from app.services.db import engine
 from app.models import student_results  # ensures models are loaded
@@ -35,6 +35,7 @@ app.add_middleware(
 app.include_router(predict.router, prefix="/api", tags=["Predict & Analyze"])
 app.include_router(materials.router, prefix="/api", tags=["Materials & Results"])
 app.include_router(upload.router, prefix="/api", tags=["Upload & Preprocess"])
+app.include_router(individual_analysis.router, prefix="/api", tags=["student wise entry"] )
 # app.include_router(login.router, prefix="/api", tags=["Authentication"])  # Uncomment if login implemented
 
 # Static file mount

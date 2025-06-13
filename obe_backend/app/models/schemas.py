@@ -1,7 +1,7 @@
 # app/models/schemas.py
 
 from pydantic import BaseModel, constr,EmailStr
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional,Literal
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
@@ -99,7 +99,9 @@ class ClassPerformanceCreate(ClassPerformanceBase):
 class ClassPerformanceOut(ClassPerformanceBase):
     class Config:
         orm_mode = True
-
+class CourseExamPair(BaseModel):
+    course: str
+    exam: str
 
 class StudentLoginRequest(BaseModel):
     register_no: str
@@ -122,3 +124,26 @@ class TeacherOut(BaseModel):
 class TeacherLoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+# app/models/schemas.py
+from pydantic import BaseModel, Field
+from typing import Dict
+
+class COmappingCreate(BaseModel):
+    course: str
+    exam: str
+    question_to_co: Dict[str, str]
+    co_definition: Dict[str, str]
+
+class COmappingOut(COmappingCreate):
+    pass
+
+
+class IndividualInputSchema(BaseModel):
+    course: str
+    exam: str
+    course_type: Literal["Minor", "Major"]
+    register_number: str
+    marks: Dict[str, int]  # {"Q1": 2, "Q2": 3, ...}
+    question_to_co: Dict[str, str]  # {"1": "CO1", "2": "CO2", ...}
+    co_definitions: Dict[str, str]  # {"CO1": "Definition", ...}

@@ -1,7 +1,8 @@
 # app/services/analysis.py
 
 import pandas as pd
-import logging
+import logging 
+from app.models.schemas import IndividualInputSchema  # Import this if not already
 
 def preprocess(df, question_to_co):
     required_cols = ['Exam', 'Course', 'Register Number', 'QN.NO', 'Mark']
@@ -107,7 +108,7 @@ def add_model_predictions(df: pd.DataFrame) -> pd.DataFrame:
     df['Percentage'] = df['CO_Avg']
     return df
 
-def get_weak_cos(df: pd.DataFrame, threshold: float = 65.0) -> dict:
+def get_weak_cos(df: pd.DataFrame, threshold: float = 65.0) -> dict:    
     co_cols = [
         col for col in df.columns
         if col.startswith('CO') and not col.endswith(('_avg', '_max', '_acquired', '_Max', '_Avg'))
@@ -120,3 +121,102 @@ def get_weak_cos(df: pd.DataFrame, threshold: float = 65.0) -> dict:
             if pd.notnull(row.get(co)) and row.get(co) < threshold
         ]
     return weak_cos
+
+
+def analyze_individual_entry(entry, question_to_co: dict, co_definitions: dict, course_type: str) -> pd.DataFrame:
+    register_number = entry.register_number
+    exam = entry.exam
+    course = entry.course
+    marks_dict = entry.marks
+
+    if not all([register_number, exam, course, marks_dict]):
+        raise ValueError("Missing required student entry fields")
+
+    records = []
+    print("DEBUG: question_to_co =", question_to_co)
+    print("DEBUG: marks_dict =", marks_dict)
+
+    for q_str, mark in marks_dict.items():
+        try:
+            q_no = int(q_str.strip("qQ"))
+            co = question_to_co.get(f"Q{q_no}")
+            if co is None:
+                continue
+
+            if course_type == "Major":
+                if 1 <= q_no <= 10:
+                    max_mark = 3
+                elif 11 <= q_no <= 18:
+                    max_mark = 6
+                elif 19 <= q_no <= 20:
+                    max_mark = 10
+                else:
+                    max_mark = 0
+            elif course_type == "Minor":
+                if 1 <= q_no <= 10:
+                    max_mark = 2
+                elif 11 <= q_no <= 15:
+                    max_mark = 6
+                elif 16 <= q_no <= 17:
+                    max_mark = 10
+                else:
+                    max_mark = 0
+            else:
+                raise ValueError("Invalid course type")
+
+            records.append({
+                "Register Number": register_number,
+                "Exam": exam,
+                "Course": course,
+                "Question": q_no,
+                "Mark": float(mark),
+                "CO": co,
+                "MaxMark": max_mark
+            })
+        except Exception:
+            continue
+
+    if not records:
+        raise ValueError("No valid questions mapped to COs — check question_to_co and student marks.")
+
+    df = pd.DataFrame(records)
+    if df.empty:
+        raise ValueError("No valid question records processed — check CO mappings and mark entries.")
+
+    co_acquired_df = df.groupby(['Register Number', 'CO'])['Mark'].sum().unstack(fill_value=0)
+    co_max_df = df.groupby(['Register Number', 'CO'])['MaxMark'].sum().unstack(fill_value=0)
+
+    co_acquired_df.columns = [f"{col}_acquired" for col in co_acquired_df.columns]
+    co_max_df.columns = [f"{col}_max" for col in co_max_df.columns]
+
+    result_df = co_acquired_df.merge(co_max_df, on='Register Number', how='left')
+
+    for co in [col.replace("_acquired", "") for col in co_acquired_df.columns]:
+        result_df[co] = (result_df[f"{co}_acquired"] / result_df[f"{co}_max"].replace(0, 1)) * 100
+
+    co_columns = [col for col in result_df.columns if col.startswith("CO") and not col.endswith(("_acquired", "_max","_Max","_Avg","_avg"))]
+    result_df["CO_Avg"] = result_df[co_columns].mean(axis=1)
+    result_df["CO_Max"] = result_df[[f"{co}_max" for co in co_columns]].sum(axis=1)
+
+    def rule_based_category(avg):
+        if avg >= 90:
+            return "Excellent"
+        elif avg >= 75:
+            return "Good"
+        elif avg >= 55:
+            return "Average"
+        else:
+            return "At-Risk"
+
+    result_df["Performance"] = result_df["CO_Avg"].apply(rule_based_category)
+    result_df["Percentage"] = result_df["CO_Avg"]
+    result_df["Register Number"] = register_number
+    result_df["Exam"] = exam
+    result_df["Course"] = course
+
+    result_df = result_df[
+        ["Register Number", "Exam", "Course"] +
+        co_columns + ["CO_Avg", "CO_Max", "Percentage", "Performance"]
+    ]
+
+    return result_df

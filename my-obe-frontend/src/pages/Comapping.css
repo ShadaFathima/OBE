@@ -89,6 +89,11 @@
   border: 1px solid #ccc;
   text-align: center;
 }
+.Comapping-input-row input::placeholder {
+  font-size: 0.6rem; /* or try 0.7rem, 12px, etc. */
+  color: #999; /* optional: make it slightly lighter */
+}
+
 
 .Comapping-co-definitions {
   padding: 1rem 0;
@@ -132,3 +137,10 @@
   background-color: #360794;
 }
 
+.input-error {
+  border: 2px solid red;
+}
+
+.input-error::placeholder {
+  color: red;
+}

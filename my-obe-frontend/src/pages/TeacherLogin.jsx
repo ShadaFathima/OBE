@@ -39,7 +39,7 @@ function TeacherLogin() {
 
       if (response.status === 200 && response.data.success) {
         alert('Login successful!');
-        navigate('/teacherdashboard');
+        navigate('/uploadfirstpage');
       } else {
         setErrors({ general: 'Invalid credentials' });
       }

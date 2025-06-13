@@ -1,17 +1,22 @@
+# app/services/crud.py
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
 from typing import List, Dict, Union
+from sqlalchemy import insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 import logging
 from app.models.student_results import StudentResult
-from app.models.schemas import StudentResultCreate, SuggestionItem
+from app.models.schemas import StudentResultCreate, SuggestionItem, StudentDetailsCreate,ClassPerformanceCreate,COmappingCreate
 from app.models.study_material import StudyMaterial
 from app.models.student_details import StudentDetails
 from app.models.teacherSignup import Teacher
-from app.models.schemas import StudentDetailsCreate, ClassPerformanceCreate
 from app.models.class_performance import ClassPerformance
 from passlib.context import CryptContext
+from app.models.co_mapping import COmapping
+
 
 
 logger = logging.getLogger(__name__)
@@ -22,10 +27,6 @@ logger = logging.getLogger(__name__)
 async def create_student_result(db: AsyncSession, result: StudentResultCreate):
     try:
         existing_result = await get_student_result_by_regno(db, result.register_number)
-
-        # If the session was already invalid due to earlier failure
-        if existing_result is None and isinstance(existing_result, Exception):
-            raise existing_result
 
         suggestions_dict = {
             k: v.dict() if hasattr(v, "dict") else v for k, v in result.suggestions.items()
@@ -65,7 +66,6 @@ async def get_student_result_by_regno(db: AsyncSession, register_number: str):
         )
         return result.scalars().first()
     except Exception as e:
-        await db.rollback()
         logger.exception(f"Failed to fetch student result for {register_number}", exc_info=e)
         return None
 
@@ -152,18 +152,21 @@ async def save_study_material_from_suggestion(
 
 async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
     try:
-        # Step 1: Check if student already exists
-        query = select(StudentDetails).where(StudentDetails.register_number == detail.register_number)
+        # Check by register number + course + exam
+        query = select(StudentDetails).where(
+            StudentDetails.register_number == detail.register_number,
+            StudentDetails.course == detail.course,
+            StudentDetails.exam == detail.exam
+        )
         result = await db.execute(query)
         existing_student = result.scalar_one_or_none()
 
         if existing_student:
-            logger.info(f"Student {detail.register_number} exists. Updating record.")
-            # Update fields from incoming detail
+            logger.info(f"[CRUD] Student {detail.register_number} exists for {detail.course}/{detail.exam}. Updating record.")
             for field, value in detail.dict().items():
                 setattr(existing_student, field, value)
         else:
-            logger.info(f"Student {detail.register_number} not found. Creating new record.")
+            logger.info(f"[CRUD] Student {detail.register_number} not found for {detail.course}/{detail.exam}. Creating new record.")
             existing_student = StudentDetails(**detail.dict())
             db.add(existing_student)
 
@@ -173,13 +176,8 @@ async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
 
     except Exception as e:
         await db.rollback()
-        logger.exception(f"Failed to save/update student detail for {detail.register_number}", exc_info=e)
+        logger.exception(f"[CRUD] Failed to save/update student detail for {detail.register_number}", exc_info=e)
         return None
-
-
-async def get_student_details_by_regno(db: AsyncSession, register_number: str):
-    result = await db.execute(select(StudentDetails).where(StudentDetails.register_number == register_number))
-    return result.scalar_one_or_none()
 
 
 # ------------------------ CLASS PERFORMANCE ------------------------
@@ -269,3 +267,29 @@ async def authenticate_teacher(db: AsyncSession, email: str, password: str) -> T
     if teacher and verify_password(password, teacher.hashed_password):
         return teacher
     return None
+
+#------------------------------STUDENT WISE ENTRY SECTION -------------------------------------------------------
+
+async def create_co_mapping(db: AsyncSession, data: COmappingCreate):
+    stmt = pg_insert(COmapping).values(**data.dict()).on_conflict_do_update(
+        index_elements=["course", "exam"],
+        set_={
+            "question_to_co": data.question_to_co,
+            "co_definition": data.co_definition
+        }
+    )
+    await db.execute(stmt)
+    await db.commit()
+
+async def get_co_mapping(db: AsyncSession, course: str, exam: str):
+    result = await db.execute(
+        select(COmapping).where(COmapping.course == course, COmapping.exam == exam)
+    )
+    return result.scalar_one_or_none()
+
+async def get_question_to_co_and_definitions(db: AsyncSession, course: str, exam: str) -> tuple[dict, dict]:
+    mapping = await get_co_mapping(db, course, exam)
+    if not mapping:
+        raise ValueError(f"CO mapping not found for course: {course}, exam: {exam}")
+
+    return mapping.question_to_co, mapping.co_definition

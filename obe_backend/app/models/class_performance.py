@@ -21,3 +21,16 @@ class ClassPerformance(Base):
     __table_args__ = (
         PrimaryKeyConstraint('course', 'exam'),
     )
+
+    def to_dict(self):
+        return {
+            "course": self.course,
+            "exam": self.exam,
+            "co1_avg": self.co1_avg,
+            "co2_avg": self.co2_avg,
+            "co3_avg": self.co3_avg,
+            "co4_avg": self.co4_avg,
+            "co5_avg": self.co5_avg,
+            "co6_avg": self.co6_avg,
+            "class_performance": self.class_performance,
+        }
