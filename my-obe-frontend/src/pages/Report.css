@@ -1,0 +1,95 @@
+.report-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: white;
+  max-height: 100vh;         /* Allow vertical scroll within viewport */
+  overflow-y: auto;          /* Enable vertical scrolling */
+  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.report-container::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
+
+.report-container h1 {
+  margin: 0 auto;
+  text-align: center;
+  flex: 1;
+  margin-bottom: 70px;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.report-header h2 {
+  margin: 0 auto;
+  flex: 1;
+}
+
+.report-button {
+  background-color: #17002f;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.report-button:hover {
+  background-color: #eae3f1;
+  color: #17002f;
+}
+
+.report-table {
+  border: 2px solid #17002f;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+th, td {
+  border: 1px solid #17002f;
+  padding: 8px;
+  font-size: 14px;
+}
+
+th {
+  background-color: #f7efff;
+}
+
+.chart-section {
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.chart-section h3 {
+  text-align: left;
+  margin-bottom: 50px;
+  font-size: 18px;
+  color: #17002f;
+}
+
+/* Optional: make chart responsive for PDF too */
+.recharts-wrapper {
+  margin: 0 auto;
+  width: 70%;
+}
+
+@media print {
+  .report-table {
+    overflow: visible !important;
+    height: auto !important;
+  }
+}

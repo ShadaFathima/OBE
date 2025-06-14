@@ -23,6 +23,7 @@ import Comapping from "./pages/Comapping"
 import Individualupload from './pages/Individualupload';
 import TeacherExamCourseSelect from './pages/TeacherExamCourseSelect';
 import StudentExamCourseSelect from './pages/StudentExamCourseSelect';
+import Report from './pages/Report';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -69,6 +70,7 @@ function App() {
       <Route path="/comapping" element={<Comapping/>} />
       <Route path="/teacherexamcourseselect" element={<TeacherExamCourseSelect/>} />
       <Route path="/studentexamcourseselect" element={<StudentExamCourseSelect/>}/>
+      <Route path="/report" element={<Report/>} />
 
 
       {/* <Route path='/uploading' element={<Uploading/>} /> */}
