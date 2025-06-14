@@ -102,16 +102,19 @@ const Report = () => {
 
   return (
     <div className="report-container">
-      <h1>Farook College (Autonomous)</h1>
+      {/* <h1>Farook College (Autonomous)</h1> */}
       <div className="report-header">
-        <h2>CO Attainment Report</h2>
+        {/* <h2>CO Attainment Report</h2> */}
         <button className="report-button" onClick={handleDownload}>
           Download PDF
         </button>
       </div>
 
       <div ref={reportRef} className="report-table">
-        <p><strong>Course:</strong> Sample Course</p>
+              <h1>Farook College (Autonomous)</h1>
+                        <h2>CO Attainment Report</h2>
+
+        <h4><strong>Course:</strong> Sample Course</h4><br/>
         <h4><em>Average Attainment</em></h4>
 
         <table>
