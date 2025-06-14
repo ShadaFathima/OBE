@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 async def create_student_result(db: AsyncSession, result: StudentResultCreate):
     try:
-        existing_result = await get_student_result_by_regno(db, result.register_number)
+        existing_result = await get_student_result_by_regno(db, result.register_number, result.exam, result.course)
 
         suggestions_dict = {
             k: v.dict() if hasattr(v, "dict") else v for k, v in result.suggestions.items()
@@ -43,6 +43,8 @@ async def create_student_result(db: AsyncSession, result: StudentResultCreate):
         else:
             db_result = StudentResult(
                 register_number=result.register_number,
+                exam = result.exam,
+                course = result.course,
                 performance=result.performance,
                 percentage=result.percentage,
                 weak_cos=result.weak_cos,
@@ -58,11 +60,14 @@ async def create_student_result(db: AsyncSession, result: StudentResultCreate):
         logger.error("Error in create_student_result", exc_info=e)
         raise
 
-
-async def get_student_result_by_regno(db: AsyncSession, register_number: str):
+async def get_student_result_by_regno(db: AsyncSession, register_number: str, exam: str, course: str):
     try:
         result = await db.execute(
-            select(StudentResult).where(StudentResult.register_number == register_number)
+            select(StudentResult).where(
+                StudentResult.register_number == register_number,
+                StudentResult.exam == exam,
+                StudentResult.course == course
+            )
         )
         return result.scalars().first()
     except Exception as e:
@@ -145,40 +150,82 @@ async def save_study_material_from_suggestion(
         await db.rollback()
         logger.exception(f"Failed to save study material for topic: {topic}", exc_info=e)
         return None
-
+async def get_student_details_by_regno(db: AsyncSession, register_number: str):
+    result = await db.execute(
+        select(StudentDetails).where(StudentDetails.register_number == register_number)
+    )
+    return result.scalar_one_or_none()
 
 # ------------------------ STUDENT DETAILS ------------------------
 
-
 async def create_student_detail(db: AsyncSession, detail: StudentDetailsCreate):
     try:
-        # Check by register number + course + exam
-        query = select(StudentDetails).where(
-            StudentDetails.register_number == detail.register_number,
-            StudentDetails.course == detail.course,
-            StudentDetails.exam == detail.exam
+        detail_dict = detail.dict()
+
+        # Construct insert statement with ON CONFLICT DO UPDATE
+        stmt = pg_insert(StudentDetails).values(**detail_dict)
+
+        # Prepare update dict excluding primary key fields
+        update_dict = {
+            key: stmt.excluded[key]
+            for key in detail_dict.keys()
+            if key not in ("register_number", "course", "exam")  # these are used for conflict resolution
+        }
+
+        stmt = stmt.on_conflict_do_update(
+            index_elements=["register_number", "course", "exam"],
+            set_=update_dict
         )
-        result = await db.execute(query)
-        existing_student = result.scalar_one_or_none()
 
-        if existing_student:
-            logger.info(f"[CRUD] Student {detail.register_number} exists for {detail.course}/{detail.exam}. Updating record.")
-            for field, value in detail.dict().items():
-                setattr(existing_student, field, value)
-        else:
-            logger.info(f"[CRUD] Student {detail.register_number} not found for {detail.course}/{detail.exam}. Creating new record.")
-            existing_student = StudentDetails(**detail.dict())
-            db.add(existing_student)
-
+        await db.execute(stmt)
         await db.commit()
-        await db.refresh(existing_student)
-        return existing_student
+        logger.info(f"[UPSERT] StudentDetail upserted for {detail.register_number} ({detail.course}/{detail.exam})")
+        return True
 
     except Exception as e:
         await db.rollback()
-        logger.exception(f"[CRUD] Failed to save/update student detail for {detail.register_number}", exc_info=e)
+        logger.exception(f"[UPSERT ERROR] Failed to upsert student detail for {detail.register_number}", exc_info=e)
         return None
+    
+async def get_courses_exams_by_register_number(db: AsyncSession, register_number: str):
+    result = await db.execute(
+        select(StudentDetails.course, StudentDetails.exam).where(StudentDetails.register_number == register_number)
+    )
+    rows = result.fetchall()
+    return [{"course": row.course, "exam": row.exam} for row in rows]
 
+
+async def get_student_details_by_keys(db: AsyncSession, reg_no: str, course: str, exam: str):
+    result = await db.execute(
+        select(StudentDetails).where(
+            and_(
+                StudentDetails.register_number == reg_no,
+                StudentDetails.course == course,
+                StudentDetails.exam == exam
+            )
+        )
+    )
+    return result.scalar_one_or_none()
+
+async def get_student_result_by_regno_exam_course(db: AsyncSession, register_number: str, exam: str, course: str):
+    result = await db.execute(
+        select(StudentResult).where(
+            StudentResult.register_number == register_number,
+            StudentResult.exam == exam,
+            StudentResult.course == course
+        )
+    )
+    return result.scalar_one_or_none()
+
+async def get_student_details_by_regno_exam_course(db: AsyncSession, register_number: str, exam: str, course: str):
+    result = await db.execute(
+        select(StudentDetails).where(
+            StudentDetails.register_number == register_number,
+            StudentDetails.exam == exam,
+            StudentDetails.course == course
+        )
+    )
+    return result.scalar_one_or_none()
 
 # ------------------------ CLASS PERFORMANCE ------------------------
 
@@ -233,9 +280,9 @@ async def get_class_performance(db: AsyncSession, course: str, exam: str):
 
 async def check_register_number_exists(db: AsyncSession, register_no: str) -> bool:
     result = await db.execute(
-        select(StudentDetails).where(StudentDetails.register_number == register_no)
+        select(StudentDetails).where(StudentDetails.register_number == register_no,)
     )
-    student = result.scalar_one_or_none()
+    student = result.scalar()  
     return student is not None
 
 #---------------------------------------Teacher Sign Up ---------------------------------------------------------------

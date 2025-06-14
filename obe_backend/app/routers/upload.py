@@ -184,11 +184,14 @@ async def upload_excel(
 
                 await create_student_result(db, StudentResultCreate(
                     register_number=reg_no,
+                    exam=row.get("Exam"),
+                    course=row.get("Course"),
                     performance=performance,
                     percentage=round(percentage, 2),
                     weak_cos=weak_cos,
                     suggestions=suggestions_dict_for_db
                 ))
+
 
                 logger.info(f"Saved student result for {reg_no} to database.")
             except Exception as e:

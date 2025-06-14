@@ -44,19 +44,29 @@ async def save_student_result(
 
 @router.get("/results/{register_number}", response_model=StudentResultOut)
 async def get_student_result(
-    register_number: str, db: AsyncSession = Depends(get_db)
+    register_number: str,
+    exam: str,
+    course: str,
+    db: AsyncSession = Depends(get_db),
 ):
-    data = await crud.get_student_result_by_regno(db, register_number)
+    data = await crud.get_student_result_by_regno_exam_course(db, register_number, exam, course)
     if not data:
         raise HTTPException(status_code=404, detail="Result not found")
     return data
 
+
 @router.get("/student_details/{register_number}", response_model=StudentDetailsOut)
-async def get_student_details(register_number: str, db: AsyncSession = Depends(get_db)):
-    data = await crud.get_student_details_by_regno(db, register_number)
+async def get_student_details(
+    register_number: str,
+    exam: str,
+    course: str,
+    db: AsyncSession = Depends(get_db),
+):
+    data = await crud.get_student_details_by_regno_exam_course(db, register_number, exam, course)
     if not data:
         raise HTTPException(status_code=404, detail="Student details not found")
     return data
+
 @router.post("/student_details/", response_model=StudentDetailsOut)
 async def create_student_detail_route(
     detail: crud.StudentDetailsCreate, db: AsyncSession = Depends(get_db)
@@ -65,6 +75,24 @@ async def create_student_detail_route(
     if not result:
         raise HTTPException(status_code=500, detail="Failed to save student detail")
     return result
+
+@router.get("/student_details_info/{register_number}")
+async def get_course_exam_by_register_number(register_number: str, db: AsyncSession = Depends(get_db)):
+    # Now returns multiple records for same reg_no
+    results = await db.execute(
+        select(crud.StudentDetails).where(crud.StudentDetails.register_number == register_number)
+    )
+    records = results.scalars().all()
+    if not records:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    # Return list of {course, exam}
+    return [
+        {"course": r.course, "exam": r.exam}
+        for r in records
+    ]
+
+
 
 @router.get("/class_performance/", response_model=ClassPerformanceOut)
 async def get_class_performance_route(

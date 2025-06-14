@@ -38,7 +38,7 @@ async def analyze_individual(
 
         if result_df.empty:
             raise HTTPException(status_code=400, detail="No data processed")
-        print(f"result_df",result_df.columns)
+
         await compute_and_save_class_performance(result_df, db)
 
         performance_counts = result_df["Performance"].value_counts().to_dict()
@@ -48,12 +48,15 @@ async def analyze_individual(
             reg_no = row["Register Number"]
             performance = row["Performance"]
             percentage = row["Percentage"]
+            exam = row["Exam"]
+            course = row["Course"]
 
             weak_cos = [
                 co for co in row.index
                 if co.startswith("CO") and not co.endswith(("acquired", "max")) and row[co] < 60
             ]
 
+            # Clean CO definitions
             clean_co_definitions = {}
             for co, defn in co_definitions.items():
                 try:
@@ -68,7 +71,7 @@ async def analyze_individual(
                 except Exception as e:
                     logger.error(f"Error cleaning CO definition for {co}: {e}")
 
-            # Fetch study material per CO
+            # Fetch study material per weak CO
             suggestions = []
             for co in weak_cos:
                 topic = clean_co_definitions.get(co, "")
@@ -80,20 +83,19 @@ async def analyze_individual(
                     "youtube_videos": material.get("youtube_videos", []) if material else [],
                 })
 
-            # Fix: Convert marks_dict keys 'Q1' to 'q1', etc.
-            formatted_marks = {k.lower(): v for k, v in data.marks.items()}  # Q1 → q1
+            # Convert marks keys (Q1 → q1)
+            formatted_marks = {k.lower(): v for k, v in data.marks.items()}
 
             detail_data = StudentDetailsCreate(
                 register_number=reg_no,
-                exam=row["Exam"],
-                course=row["Course"],
-                **formatted_marks,  # inject q1 to q20
+                exam=exam,
+                course=course,
+                **formatted_marks,
                 **{col.lower(): row[col] for col in row.index if col.startswith("CO")}
             )
 
             await create_student_detail(db, detail_data)
-            logger.debug(f"Saving student detail: {detail_data}")
-            print(f"details :",detail_data)
+
             def normalize_suggestion(sugg: dict) -> dict:
                 material = sugg.get("material", [])
                 if isinstance(material, str):
@@ -135,6 +137,8 @@ async def analyze_individual(
 
             await create_student_result(db, StudentResultCreate(
                 register_number=reg_no,
+                exam=exam,
+                course=course,
                 performance=performance,
                 percentage=round(percentage, 2),
                 weak_cos=weak_cos,

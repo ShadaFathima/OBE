@@ -1,14 +1,17 @@
-from sqlalchemy import Column, String, Float, DateTime
+from sqlalchemy import Column, String, Float, DateTime, PrimaryKeyConstraint
 from sqlalchemy.sql import func
-from sqlalchemy.orm import declarative_base
 from app.services.db import Base
 
 class StudentDetails(Base):
     __tablename__ = "student_details"
 
-    register_number = Column(String, primary_key=True, index=True)
-    exam = Column(String, nullable=False)
+    register_number = Column(String, index=True)
     course = Column(String, nullable=False)
+    exam = Column(String, nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('register_number', 'course', 'exam'),
+    )
 
     # Questions: make them nullable to allow flexibility
     q1 = Column(Float, nullable=True)

@@ -14,14 +14,11 @@ import {
   BarChart,
   Bar,
   Cell,
-  Legend,
   LabelList,
 } from "recharts";
 
-// ... All imports remain the same
-
 const StudentDashboardView = () => {
-  const { registerNumber } = useParams();
+  const { registerNumber, exam, course } = useParams();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,8 +35,8 @@ const StudentDashboardView = () => {
     async function fetchAllData() {
       try {
         const [resultRes, detailsRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/results/${registerNumber}`),
-          fetch(`http://localhost:8000/api/student_details/${registerNumber}`),
+          fetch(`http://localhost:8000/api/results/${registerNumber}?exam=${exam}&course=${course}`),
+          fetch(`http://localhost:8000/api/student_details/${registerNumber}?exam=${exam}&course=${course}`),
         ]);
 
         if (!resultRes.ok || !detailsRes.ok) {
@@ -126,54 +123,27 @@ const StudentDashboardView = () => {
               </LineChart>
             </div>
 
-            {/* Bar Chart */}
+            {/* Bar Chart (Updated Gradient Style) */}
             <div className="stud-dash-view-chart-box">
               <h3>CO Bar Chart</h3>
               <BarChart width={400} height={250} data={coScores}>
                 <defs>
-                  <linearGradient id="coGradient1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#b8aaff" />
-                    <stop offset="100%" stopColor="#8979ff" />
-                  </linearGradient>
-                  <linearGradient id="coGradient2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ffc2c2" />
-                    <stop offset="100%" stopColor="#ff8c8c" />
-                  </linearGradient>
-                  <linearGradient id="coGradient3" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a0ecff" />
-                    <stop offset="100%" stopColor="#6ec6ff" />
-                  </linearGradient>
-                  <linearGradient id="coGradient4" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ffe299" />
-                    <stop offset="100%" stopColor="#ffd166" />
-                  </linearGradient>
-                  <linearGradient id="coGradient5" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#b0ccff" />
-                    <stop offset="100%" stopColor="#80aaff" />
-                  </linearGradient>
-                  <linearGradient id="coGradient6" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ff4fff" />
-                    <stop offset="100%" stopColor="#aa0f80" />
-                  </linearGradient>
-
+                  {["#b8aaff", "#ffc2c2", "#a0ecff", "#ffe299", "#b0ccff", "#ff4fff"].map(
+                    (startColor, idx) => {
+                      const endColors = ["#8979ff", "#ff8c8c", "#6ec6ff", "#ffd166", "#80aaff", "#aa0f80"];
+                      return (
+                        <linearGradient id={`coGradient${idx + 1}`} x1="0" y1="0" x2="0" y2="1" key={idx}>
+                          <stop offset="0%" stopColor={startColor} />
+                          <stop offset="100%" stopColor={endColors[idx]} />
+                        </linearGradient>
+                      );
+                    }
+                  )}
                 </defs>
                 <Bar dataKey="score">
-                  {coScores.map((_, index) => {
-                    const gradients = [
-                      "coGradient1",
-                      "coGradient2",
-                      "coGradient3",
-                      "coGradient4",
-                      "coGradient5",
-                      "coGradient6",
-                    ];
-                    return (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={`url(#${gradients[index % gradients.length]})`}
-                      />
-                    );
-                  })}
+                  {coScores.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={`url(#coGradient${(index % 6) + 1})`} />
+                  ))}
                   <LabelList
                     dataKey="score"
                     position="top"

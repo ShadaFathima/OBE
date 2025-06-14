@@ -22,6 +22,7 @@ import Uploadfirstpage from './pages/Uploadfirstpage';
 import Comapping from "./pages/Comapping"
 import Individualupload from './pages/Individualupload';
 import TeacherExamCourseSelect from './pages/TeacherExamCourseSelect';
+import StudentExamCourseSelect from './pages/StudentExamCourseSelect';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +54,7 @@ function App() {
       <Route path="/teacherlogin" element={<TeacherLogin />} />
       <Route path="/studentlogin" element={<StudentLogin />} />
       <Route path="/studentdashboard" element={<StudentDashboard />} />
-      <Route path="/studentdashboardview/:registerNumber" element={<StudentDashboardView />} />
+      <Route path="/studentdashboardview/:registerNumber/:course/:exam" element={<StudentDashboardView />} />
       <Route path="/studentperformance" element={<StudentPerformance />} />
       <Route path="/teacherprofile" element={<TeacherProfile />} />
       <Route path="/teacherdashboard" element={<TeacherDashboard />} />
@@ -67,6 +68,8 @@ function App() {
       <Route path="/individualupload" element={<Individualupload />} />
       <Route path="/comapping" element={<Comapping/>} />
       <Route path="/teacherexamcourseselect" element={<TeacherExamCourseSelect/>} />
+      <Route path="/studentexamcourseselect" element={<StudentExamCourseSelect/>}/>
+
 
       {/* <Route path='/uploading' element={<Uploading/>} /> */}
     </Routes>

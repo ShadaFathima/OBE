@@ -16,10 +16,12 @@ class SuggestionItem(BaseModel):
 
 class StudentResultCreate(BaseModel):
     register_number: str
-    performance: str  # You can convert this to Enum if needed
+    exam: str
+    course: str
+    performance: str
     percentage: float
-    weak_cos: List[str]
-    suggestions: Dict[str, SuggestionItem]
+    weak_cos: list[str]
+    suggestions: dict[str, SuggestionItem]
 
 
 class StudentResultOut(StudentResultCreate):

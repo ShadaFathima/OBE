@@ -24,7 +24,9 @@ function StudentLogin() {
 
       if (response.data.success) {
         alert('Login successful!');
-        navigate(`/studentdashboardview/${registerNo}`);
+        navigate('/studentexamcourseselect', {
+          state: { registerNo },  
+        });
       } else {
         setError('Invalid credentials');
       }

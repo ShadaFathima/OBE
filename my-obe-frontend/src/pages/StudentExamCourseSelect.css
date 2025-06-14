@@ -1,5 +1,4 @@
-/* Layout container */
-.tecs-select-container {
+.secs-container {
   display: flex;
   height: 100vh;
   width: 100vw;
@@ -7,8 +6,7 @@
   font-family: Arial, sans-serif;
 }
 
-/* Sidebar */
-.tecs-sidebar {
+.secs-sidebar {
   width: 235px;
   background-color: #0d0d2b;
   padding: 2rem;
@@ -17,22 +15,22 @@
   margin: 1.5rem;
 }
 
-.tecs-sidebar h2 {
+.secs-sidebar h2 {
   margin-bottom: 30px;
   font-size: 20px;
   text-align: center;
 }
 
-.tecs-sidebar ul {
+.secs-sidebar ul {
   list-style: none;
   padding: 0;
 }
 
-.tecs-sidebar ul li {
+.secs-sidebar ul li {
   margin-bottom: 20px;
 }
 
-.tecs-sidebar ul li a {
+.secs-sidebar ul li a {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -43,28 +41,22 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-.tecs-sidebar ul li a:hover,
-.tecs-sidebar ul li a.active {
+.secs-sidebar ul li a:hover,
+.secs-sidebar ul li a.active {
   background-color: white;
   color: #0d0d2b;
 }
 
-.tecs-icon {
-  font-size: 20px;
-}
-
-/* Form area */
-.tecs-form-area {
+.secs-form {
   flex: 1;
   display: flex;
   flex-direction: column;
   margin-top: 7rem;
 }
 
-/* Dropdown container box */
-.whole-dropdown {
+.secs-dropdown-wrapper {
   height: 30rem;
-  width: 40rem;
+  width:40rem;
   background-color: #ffffff;
   margin: auto;
   position: absolute;
@@ -79,24 +71,16 @@
   justify-content: center;
 }
 
-/* Dropdowns inside */
-.tecs-dropdowns {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.tecs-dropdowns select {
-  padding: 1rem;
+.secs-dropdowns select {
+  padding: rem;
   font-size: 1rem;
   border: 1px solid #333;
   border-radius: 4px;
   width: 100%;
+  margin-bottom: 1rem;
 }
 
-/* DONE button */
-.tecs-done-button {
+.secs-button {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -109,18 +93,17 @@
   margin-top: 1rem;
 }
 
-.tecs-done-button:hover {
+.secs-button:hover {
   background-color: #4040bc;
 }
 
-/* Optional error styling */
-.tecs-error {
+.secs-error {
   color: red;
   text-align: center;
   margin-bottom: 1rem;
 }
 
-.tecs-disabled {
+.secs-disabled {
   background-color: #f0f0f0;
   color: #999;
   cursor: not-allowed;
