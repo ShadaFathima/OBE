@@ -14,7 +14,7 @@ const StudentPerformance = () => {
   // Redirect to dashboard if state is missing
   React.useEffect(() => {
     if (!weakCOs || !suggestions || !registerNumber) {
-      navigate("/studentdashboard");
+      navigate("/studentdashboard/course/exam");
     }
   }, [weakCOs, suggestions, registerNumber, navigate]);
 

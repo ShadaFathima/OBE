@@ -227,6 +227,18 @@ async def get_student_details_by_regno_exam_course(db: AsyncSession, register_nu
     )
     return result.scalar_one_or_none()
 
+
+async def get_all_exam_records_by_student_course(
+    db: AsyncSession, register_number: str, course: str
+):
+    result = await db.execute(
+        select(StudentDetails).where(
+            StudentDetails.register_number == register_number,
+            StudentDetails.course == course
+        ).order_by(StudentDetails.uploaded_at)
+    )
+    return result.scalars().all()
+
 # ------------------------ CLASS PERFORMANCE ------------------------
 
 async def get_class_performance(db: AsyncSession, course: str, exam: str):

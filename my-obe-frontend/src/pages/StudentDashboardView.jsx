@@ -11,10 +11,9 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  BarChart,
+  ComposedChart,
   Bar,
   Cell,
-  LabelList,
 } from "recharts";
 
 const StudentDashboardView = () => {
@@ -24,6 +23,9 @@ const StudentDashboardView = () => {
   const [error, setError] = useState(null);
   const [resultData, setResultData] = useState(null);
   const [studentDetails, setStudentDetails] = useState(null);
+  const [classPerformance, setClassPerformance] = useState(null);
+  const [coDefinitions, setCoDefinitions] = useState({});
+  const [historyData, setHistoryData] = useState([]);
 
   useEffect(() => {
     if (!registerNumber) {
@@ -34,20 +36,38 @@ const StudentDashboardView = () => {
 
     async function fetchAllData() {
       try {
-        const [resultRes, detailsRes] = await Promise.all([
+        const [
+          resultRes,
+          detailsRes,
+          classRes,
+          coMapRes,
+          historyRes,
+        ] = await Promise.all([
           fetch(`http://localhost:8000/api/results/${registerNumber}?exam=${exam}&course=${course}`),
           fetch(`http://localhost:8000/api/student_details/${registerNumber}?exam=${exam}&course=${course}`),
+          fetch(`http://localhost:8000/api/class_performance/?exam=${encodeURIComponent(exam)}&course=${encodeURIComponent(course)}`),
+          fetch(`http://localhost:8000/api/co-mapping/?exam=${exam}&course=${course}`),
+          fetch(`http://localhost:8000/api/student/performance/?register_number=${registerNumber}&course=${course}`),
         ]);
 
-        if (!resultRes.ok || !detailsRes.ok) {
-          throw new Error("Failed to fetch student data");
+        if (!resultRes.ok || !detailsRes.ok || !coMapRes.ok || !historyRes.ok) {
+          throw new Error("Failed to fetch student, CO mapping or history data");
         }
 
-        const resultJson = await resultRes.json();
-        const detailsJson = await detailsRes.json();
+        if (classRes.ok) setClassPerformance(await classRes.json());
 
-        setResultData(resultJson);
-        setStudentDetails(detailsJson);
+        const [resultData, studentDetails, coMapData, historyJson] = await Promise.all([
+          resultRes.json(),
+          detailsRes.json(),
+          coMapRes.json(),
+          historyRes.json()
+        ]);
+
+        setResultData(resultData);
+        setStudentDetails(studentDetails);
+        setCoDefinitions(coMapData?.co_definition || {});
+        setHistoryData(historyJson);
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -56,24 +76,63 @@ const StudentDashboardView = () => {
     }
 
     fetchAllData();
-  }, [registerNumber]);
+  }, [registerNumber, exam, course]);
 
   if (loading) return <div>Loading student data...</div>;
   if (error) return <div>Error: {error}</div>;
 
-  const coScores = [];
-  for (let i = 1; i <= 6; i++) {
-    coScores.push({
-      name: `CO${i}`,
-      score: studentDetails?.[`co${i}`] || 0,
-      description: resultData?.suggestions?.[`CO${i}`]?.definition || "No description available",
-    });
-  }
+  const coScores = Array.from({ length: 6 }, (_, i) => {
+    const coIndex = i + 1;
+    return {
+      name: `CO${coIndex}`,
+      score: studentDetails?.[`co${coIndex}`] || 0,
+      description:
+        resultData?.suggestions?.[`CO${coIndex}`]?.definition ||
+        coDefinitions?.[`CO${coIndex}`] ||
+        "No description available",
+      classAvg: classPerformance?.[`co${coIndex}_avg`] || 0,
+    };
+  });
 
   const averageScore = resultData?.percentage || 0;
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = ((100 - averageScore) / 100) * circumference;
+
+  const lineData = ["CO1", "CO2", "CO3", "CO4", "CO5", "CO6"].map((coLabel, idx) => {
+  const coKey = `co${idx + 1}`;
+  const row = { name: coLabel };
+  historyData.forEach(examItem => {
+    row[examItem.exam] = examItem[coKey] || 0;
+  });
+  return row;
+});
+
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div
+          className="custom-tooltip"
+          style={{
+            backgroundColor: "#fff",
+            padding: "10px",
+            border: "1px solid #ccc",
+            color: "#333",
+            fontSize: "12px",
+          }}
+        >
+          <p><strong>{label}</strong></p>
+          {payload.map((item, i) => (
+            <p key={i} style={{ color: item.stroke }}>
+              {item.dataKey}: {item.value?.toFixed(1)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="stud-dash-view-student-container">
@@ -82,7 +141,7 @@ const StudentDashboardView = () => {
         <ul>
           <li>
             <NavLink
-              to={`/studentdashboardview/${registerNumber}`}
+              to={`/studentdashboardview/${registerNumber}/${course}/${exam}`}
               className={({ isActive }) => (isActive ? "active" : "")}
             >
               <MdDashboard className="stud-dash-view-icon" /> Dashboard
@@ -94,7 +153,7 @@ const StudentDashboardView = () => {
               state={{
                 weakCOs: resultData?.weak_cos || [],
                 suggestions: resultData?.suggestions || {},
-                registerNumber: registerNumber,
+                registerNumber,
               }}
             >
               <BiBadgeCheck className="stud-dash-view-icon" /> Enhancement
@@ -111,28 +170,60 @@ const StudentDashboardView = () => {
       <div className="stud-dash-view-main-content">
         <div className="stud-dash-view-dashboard">
           <div className="stud-dash-view-chart-section">
-            {/* Line Chart */}
+            {lineData.length > 0 && (
+  <div className="stud-dash-view-chart-box">
+    <h3>Exam-wise CO Trend</h3>
+    <LineChart width={450} height={250} data={lineData}>
+      {historyData.map((examItem, index) => (
+        <Line
+          key={index}
+          type="monotone"
+          dataKey={examItem.exam}
+          stroke={["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#00bcd4", "#c2185b"][index % 6]}
+          strokeWidth={1 }
+          dot={{ r: 3 }}
+        />
+      ))}
+      <CartesianGrid stroke="#ccc" />
+      <XAxis dataKey="name" />
+      <YAxis domain={[0, 100]} />
+      <Tooltip content={<CustomTooltip />} />
+    </LineChart>
+  </div>
+)}
+
+
             <div className="stud-dash-view-chart-box">
-              <h3>CO Line Chart</h3>
-              <LineChart width={400} height={250} data={coScores}>
-                <Line type="monotone" dataKey="score" stroke="#8884d8" />
+              <h3>Performance deviation from Class Average</h3>
+              <ComposedChart width={400} height={250} data={coScores}>
                 <CartesianGrid stroke="#ccc" />
                 <XAxis dataKey="name" />
                 <YAxis domain={[0, 100]} />
                 <Tooltip />
-              </LineChart>
-            </div>
-
-            {/* Bar Chart (Updated Gradient Style) */}
-            <div className="stud-dash-view-chart-box">
-              <h3>CO Bar Chart</h3>
-              <BarChart width={400} height={250} data={coScores}>
+                <Bar dataKey="score">
+                  {coScores.map((_, i) => (
+                    <Cell key={i} fill={`url(#coGradient${(i % 6) + 1})`} />
+                  ))}
+                </Bar>
+                <Line
+                  type="monotone"
+                  dataKey="classAvg"
+                  stroke="#af0000"
+                  strokeWidth={1}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                  connectNulls
+                />
+              </ComposedChart>
+              <svg style={{ height: 0 }}>
                 <defs>
                   {["#b8aaff", "#ffc2c2", "#a0ecff", "#ffe299", "#b0ccff", "#ff4fff"].map(
                     (startColor, idx) => {
-                      const endColors = ["#8979ff", "#ff8c8c", "#6ec6ff", "#ffd166", "#80aaff", "#aa0f80"];
+                      const endColors = [
+                        "#8979ff", "#ff8c8c", "#6ec6ff", "#ffd166", "#80aaff", "#aa0f80"
+                      ];
                       return (
-                        <linearGradient id={`coGradient${idx + 1}`} x1="0" y1="0" x2="0" y2="1" key={idx}>
+                        <linearGradient key={idx} id={`coGradient${idx + 1}`} x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor={startColor} />
                           <stop offset="100%" stopColor={endColors[idx]} />
                         </linearGradient>
@@ -140,21 +231,7 @@ const StudentDashboardView = () => {
                     }
                   )}
                 </defs>
-                <Bar dataKey="score">
-                  {coScores.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={`url(#coGradient${(index % 6) + 1})`} />
-                  ))}
-                  <LabelList
-                    dataKey="score"
-                    position="top"
-                    formatter={(value) => value.toFixed(2)}
-                    style={{ fontSize: "13.8" }}
-                  />
-                </Bar>
-                <XAxis dataKey="name" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-              </BarChart>
+              </svg>
             </div>
           </div>
 
@@ -164,10 +241,7 @@ const StudentDashboardView = () => {
                 <h3>Score</h3>
                 <div className="stud-dash-view-score-cards">
                   {coScores.map((co, index) => (
-                    <div
-                      key={index}
-                      className="stud-dash-view-score-card-with-tooltip"
-                    >
+                    <div key={index} className="stud-dash-view-score-card-with-tooltip">
                       <div className="stud-dash-view-score-card">
                         <div>{co.score.toFixed(2)}</div>
                         <small>{co.name}</small>
@@ -184,13 +258,7 @@ const StudentDashboardView = () => {
                 <h3>Feedback</h3>
                 <p>
                   Every expert was once a beginner. This is your stage 🎯{" "}
-                  <span
-                    style={{
-                      color: "rgb(255, 133, 133)",
-                      fontWeight: "600",
-                      fontSize: "1.1rem",
-                    }}
-                  >
+                  <span style={{ color: "rgb(255, 133, 133)", fontWeight: "600", fontSize: "1.1rem" }}>
                     {resultData?.performance || "No feedback available"}
                   </span>
                   . Let’s start from here.
@@ -202,14 +270,7 @@ const StudentDashboardView = () => {
               <h3>Average</h3>
               <div className="stud-dash-view-img-box">
                 <svg width="200" height="200" viewBox="0 0 200 200">
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r={radius}
-                    stroke="#e6e6e6"
-                    strokeWidth="15"
-                    fill="none"
-                  />
+                  <circle cx="100" cy="100" r={radius} stroke="#e6e6e6" strokeWidth="15" fill="none" />
                   <circle
                     cx="100"
                     cy="100"
@@ -236,6 +297,28 @@ const StudentDashboardView = () => {
               </div>
             </div>
           </div>
+
+          {lineData.length > 0 && (
+            <div className="stud-dash-view-chart-box">
+              <h3>Exam-wise CO Trend</h3>
+              <LineChart width={800} height={300} data={lineData}>
+                {historyData.map((exam, i) => (
+                  <Line
+                    key={i}
+                    type="monotone"
+                    dataKey={exam.exam}
+                    stroke={["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#00bcd4"][i % 5]}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                  />
+                ))}
+                <CartesianGrid stroke="#ccc" />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip content={<CustomTooltip />} />
+              </LineChart>
+            </div>
+          )}
         </div>
       </div>
     </div>

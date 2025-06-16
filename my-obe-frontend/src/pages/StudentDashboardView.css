@@ -102,7 +102,7 @@ body {
 .stud-dash-view-chart-box {
   background-color: #ffffff;
   border-radius: 10px;
-  padding: 20px;
+  padding-top: 2rem;
   flex: 1;
   width: fit-content;
   box-shadow: none !important;
@@ -117,7 +117,7 @@ body {
 /* Score and Average Combined Row */
 .stud-dash-view-score-average-row {
   display: flex;
-  margin-top: 1rem;
+  /* margin-top: 1rem; */
 }
 
 .stud-dash-view-score-feed-container {

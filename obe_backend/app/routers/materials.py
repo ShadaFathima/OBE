@@ -91,6 +91,18 @@ async def get_course_exam_by_register_number(register_number: str, db: AsyncSess
         {"course": r.course, "exam": r.exam}
         for r in records
     ]
+@router.get("/student/performance/")
+async def get_student_history(register_number: str, course: str, session: AsyncSession = Depends(get_db)):
+    query = (
+        select(crud.StudentDetails.exam, crud.StudentDetails.co1, crud.StudentDetails.co2, crud.StudentDetails.co3,
+               crud.StudentDetails.co4, crud.StudentDetails.co5, crud.StudentDetails.co6)
+        .where(crud.StudentDetails.register_number == register_number)
+        .where(crud.StudentDetails.course == course)
+    )
+    result = await session.execute(query)
+    history = result.mappings().all()
+    return [dict(row) for row in history]
+
 
 
 
@@ -147,6 +159,8 @@ async def get_class_performance_options(db: AsyncSession = Depends(get_db)):
     # Deduplicate if needed
     unique_pairs = list({(course, exam) for course, exam in rows})
     return [{"course": course, "exam": exam} for course, exam in unique_pairs]
+
+
 
 @router.post("/login/", response_model=StudentLoginResponse)
 async def student_login(data: StudentLoginRequest, db: AsyncSession = Depends(get_db)):

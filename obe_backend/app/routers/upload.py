@@ -1,21 +1,27 @@
-# app/routers/upload.py
-
 from fastapi import HTTPException, APIRouter, UploadFile, Depends
 import pandas as pd
 import logging
 import asyncio
 from io import BytesIO
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.services.analysis import preprocess, add_model_predictions, get_weak_cos
 from app.services.improvement import suggest_improvement_strategy
-from app.services.crud import create_student_result, save_study_material
-from app.models.schemas import StudentResultCreate, SuggestionItem
+from app.services.crud import (
+    create_student_result,
+    save_study_material,
+    create_student_detail,
+    create_co_mapping
+)
+from app.models.schemas import (
+    StudentResultCreate,
+    SuggestionItem,
+    StudentDetailsCreate,
+    COmappingCreate
+)
 from app.services.db import get_db
-from app.models.schemas import StudentDetailsCreate
-from app.services.crud import create_student_detail
-from app.services.class_analysis import compute_and_save_class_performance
-
+from app.services.class_analysis import compute_and_save_class_performance,compute_and_save_class_performance_from_db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -70,6 +76,24 @@ async def upload_excel(
 
         logger.info(f"Excel loaded: marks={df_marks.shape}, CO Mapping={len(question_to_co)}, CO Definitions={len(co_definitions)}")
 
+        # Extract course and exam from marks sheet
+        course = str(df_marks["Course"].dropna().iloc[0])
+        exam = str(df_marks["Exam"].dropna().iloc[0])
+
+        # Save CO Mapping and CO Definitions
+        co_mapping_data = COmappingCreate(
+            course=course,
+            exam=exam,
+            question_to_co=question_to_co,
+            co_definition=co_definitions
+        )
+        try:
+            await create_co_mapping(db, co_mapping_data)
+            logger.info(f"Saved CO mapping for course={course}, exam={exam}")
+        except Exception as e:
+            logger.error(f"Failed to save CO mapping: {e}")
+
+        # Preprocess and store individual student details
         pivot_df = preprocess(df_marks, question_to_co)
 
         for _, row in pivot_df.iterrows():
@@ -85,13 +109,11 @@ async def upload_excel(
             except Exception as e:
                 logger.warning(f"Failed to save student detail for {row['Register Number']}: {e}")
 
-
-
-
         pivot_df = add_model_predictions(pivot_df)
-        await compute_and_save_class_performance(pivot_df, db)
-        perf_counts = pivot_df['Performance'].value_counts().to_dict() if 'Performance' in pivot_df else {}
+        await compute_and_save_class_performance_from_db(course, exam, db)
 
+
+        perf_counts = pivot_df['Performance'].value_counts().to_dict() if 'Performance' in pivot_df else {}
         weak_cos_map = get_weak_cos(pivot_df)
 
         improvement_suggestions = {}
@@ -126,7 +148,6 @@ async def upload_excel(
             }
 
             try:
-                # Normalize SuggestionItem from dict or raw response
                 def fill_missing_keys(sugg: dict) -> dict:
                     material = sugg.get("material", [])
                     if isinstance(material, str):
@@ -181,7 +202,6 @@ async def upload_excel(
                     co: suggestion.dict() for co, suggestion in suggestions_dict.items()
                 }
 
-
                 await create_student_result(db, StudentResultCreate(
                     register_number=reg_no,
                     exam=row.get("Exam"),
@@ -191,7 +211,6 @@ async def upload_excel(
                     weak_cos=weak_cos,
                     suggestions=suggestions_dict_for_db
                 ))
-
 
                 logger.info(f"Saved student result for {reg_no} to database.")
             except Exception as e:

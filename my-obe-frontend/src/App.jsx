@@ -13,12 +13,10 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import AuthorityLogin from './pages/AuthorityLogin';
 import TeacherEnhancement from './pages/TeacherEnhancement';
 import Signin from './pages/Signin';
-
 import Speedometer from './components/Speedometer';
 import Loader from './components/Loader';
 import Upload from "./pages/upload"; 
 import Uploadfirstpage from './pages/Uploadfirstpage';
-// import Uploading from './pages/Uploading';
 import Comapping from "./pages/Comapping"
 import Individualupload from './pages/Individualupload';
 import TeacherExamCourseSelect from './pages/TeacherExamCourseSelect';

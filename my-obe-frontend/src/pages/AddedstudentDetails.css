@@ -1,0 +1,79 @@
+/* body{
+    background-color: white;
+} */
+
+.added-details-container {
+  padding: 2rem;
+  background-color: white; /* ✅ white background */
+  min-height: 100vh;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.back-btn {
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.added-students-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.added-students-table th,
+.added-students-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.added-students-table th {
+  background-color: #f2f2f2;
+  color: #222;
+}
+
+.action-btn {
+  padding: 5px 10px;
+  margin: 2px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background-color: #2196f3;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.save-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.done-btn {
+  margin-top: 1rem;
+  background-color: #673ab7;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.saved-section {
+  margin-top: 2rem;
+}
