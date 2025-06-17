@@ -5,7 +5,7 @@ import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { NavLink } from "react-router-dom";
 import { MdUpload } from "react-icons/md";
-
+import TeacherSidebar from '../components/TeacherSidebar';
 const Uploadfirstpage = () => {
     useEffect(() => {
         document.body.style.backgroundColor = '#f8f8ff';
@@ -16,7 +16,7 @@ const Uploadfirstpage = () => {
 
     return (
         <div className="upload-first-page-container">
-            <div className="upload-first-page-sidebar">
+            {/* <div className="upload-first-page-sidebar">
                 <h2>TrackMyCO</h2>
                 <ul>
                     <li>
@@ -35,7 +35,8 @@ const Uploadfirstpage = () => {
                         </NavLink>
                     </li>
                 </ul>
-            </div>
+            </div> */}
+            <TeacherSidebar />
 
             <div className="upload-first-page-main-content">
                 <div className="upload-first-page-options-container">

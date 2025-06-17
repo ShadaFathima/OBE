@@ -70,7 +70,6 @@ function App() {
       <Route path="/studentexamcourseselect" element={<StudentExamCourseSelect/>}/>
       <Route path="/report" element={<Report/>} />
 
-
       {/* <Route path='/uploading' element={<Uploading/>} /> */}
     </Routes>
   );

@@ -3,6 +3,7 @@ import './TeacherExamCourseSelect.css';
 import { MdUpload, MdDashboard } from 'react-icons/md';
 import { RiLogoutBoxRLine, RiUpload2Line } from 'react-icons/ri';
 import { NavLink, useNavigate } from 'react-router-dom';
+import TeacherSidebar from '../components/TeacherSidebar';
 
 const TeacherExamCourseSelect = () => {
   const [options, setOptions] = useState([]); // [{course, exam}, ...]
@@ -45,7 +46,7 @@ const TeacherExamCourseSelect = () => {
 
   return (
     <div className="tecs-select-container">
-      <div className="tecs-sidebar">
+      {/* <div className="tecs-sidebar">
         <h2 className="tecs-logo">TrackMyCO</h2>
         <ul className="tecs-nav-items">
           <li>
@@ -77,8 +78,8 @@ const TeacherExamCourseSelect = () => {
             </NavLink>
           </li>
         </ul>
-      </div>
-
+      </div> */}
+      <TeacherSidebar/>
       <div className="tecs-form-area">
         {loading ? (
           <p>Loading options...</p>

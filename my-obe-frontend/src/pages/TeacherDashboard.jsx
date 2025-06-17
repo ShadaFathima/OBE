@@ -3,6 +3,7 @@ import "./TeacherDashboard.css";
 import { useLocation, NavLink, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
 import axios from "axios";
+import TeacherSidebar from "../components/TeacherSidebar";  
 import { RiLogoutBoxRLine, RiUpload2Line } from "react-icons/ri";
 import {
   LineChart,
@@ -126,7 +127,7 @@ const TeacherDashboard = () => {
 
   return (
     <div className="teac-dash-student-container">
-      <div className="teac-dash-sidebar">
+      {/* <div className="teac-dash-sidebar">
         <h2>TrackMyCO</h2>
         <ul>
           <li>
@@ -145,8 +146,8 @@ const TeacherDashboard = () => {
             </NavLink>
           </li>
         </ul>
-      </div>
-
+      </div> */}
+      <TeacherSidebar />
       <div className="teac-dash-main-content">
         <div className="teac-dash-dashboard">
           <div className="teac-dash-chart-section">

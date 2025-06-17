@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { RiLogoutBoxRLine, RiUpload2Line } from "react-icons/ri";
+import TeacherSidebar from '../components/TeacherSidebar';
 
 const Uploading = () => {
   const [file, setFile] = useState(null);
@@ -65,7 +66,7 @@ const Uploading = () => {
 
   return (
     <div className="upload-container">
-      <div className="upload-sidebar">
+      {/* <div className="upload-sidebar">
         <h2>TrackMyCO</h2>
         <ul>
           <li>
@@ -84,7 +85,8 @@ const Uploading = () => {
             </NavLink>
           </li>
         </ul>
-      </div>
+      </div> */}
+      <TeacherSidebar />
 
       <div className="upload-main-content">
         <div className='upload-box'>
