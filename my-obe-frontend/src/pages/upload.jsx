@@ -10,6 +10,7 @@ import { RiLogoutBoxRLine, RiUpload2Line } from "react-icons/ri";
 const Uploading = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("No File Chosen");
+  const [loading, setLoading] = useState(false); // loading state
 
   useEffect(() => {
     document.body.style.backgroundColor = '#f8f8ff';
@@ -41,6 +42,7 @@ const Uploading = () => {
     formData.append("file", file);
 
     try {
+      setLoading(true); // Start loading
       const response = await axios.post("http://127.0.0.1:8000/api/upload/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -56,6 +58,8 @@ const Uploading = () => {
     } catch (err) {
       console.error("Upload failed", err);
       alert("❌ Error uploading file: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -88,19 +92,21 @@ const Uploading = () => {
           <div className="upload-section">
             <div className="upload-view">
               <label className="browse-btn">
-              <WiCloudUp className='upload-icon' />
-               Browse Files
-              <input
-                type="file"
-                hidden
-                accept=".xlsx"
-                onChange={handleFileChange}
-              />
-            </label>
-            <span className="file-status">{fileName}</span>
+                <WiCloudUp className='upload-icon' />
+                Browse Files
+                <input
+                  type="file"
+                  hidden
+                  accept=".xlsx"
+                  onChange={handleFileChange}
+                />
+              </label>
+              <span className="file-status">{fileName}</span>
             </div>
-            
-            <button className="upload-btn" onClick={handleSubmit}>Upload</button>
+
+            <button className="upload-btn" onClick={handleSubmit} disabled={loading}>
+              {loading ? "Processing File..." : "Upload"}
+            </button>
           </div>
         </div>
       </div>

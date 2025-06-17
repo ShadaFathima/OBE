@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./TeacherDashboard.css";
-import { useLocation, NavLink } from "react-router-dom";
+import { useLocation, NavLink, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
 import axios from "axios";
 import { RiLogoutBoxRLine, RiUpload2Line } from "react-icons/ri";
@@ -14,7 +14,6 @@ import {
   BarChart,
   Bar,
   Cell,
-  Legend,
 } from "recharts";
 
 const coGradients = {
@@ -26,17 +25,9 @@ const coGradients = {
   CO6: "co6Gradient",
 };
 
-const coLegendColors = {
-  CO1: "#8979ff",
-  CO2: "#ff8c8c",
-  CO3: "#6ec6ff",
-  CO4: "#ffd166",
-  CO5: "#80aaff",
-  CO6: "#ffaaf0",
-};
-
 const TeacherDashboard = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { course, exam } = location.state || {};
   const [performanceData, setPerformanceData] = useState([]);
   const [latestExamData, setLatestExamData] = useState(null);
@@ -70,8 +61,6 @@ const TeacherDashboard = () => {
     fetchLatestPerformance();
   }, [course, exam]);
 
-  const exams = performanceData.map((item) => item.exam);
-
   const lineData = ["CO1", "CO2", "CO3", "CO4", "CO5", "CO6"].map((co, coIndex) => {
     const coData = { name: co };
     performanceData.forEach((item) => {
@@ -79,11 +68,6 @@ const TeacherDashboard = () => {
     });
     return coData;
   });
-
-  const examColors = [
-    "#8979ff", "#ff8c8c", "#6ec6ff", "#ffd166", "#80aaff", "#ffaaf0",
-    "#a0d2eb", "#ffbdbd", "#d1f0ff", "#fff3c4", "#bfd7ff", "#ffd1dd",
-  ];
 
   const scores = latestExamData
     ? [
@@ -107,30 +91,38 @@ const TeacherDashboard = () => {
   }));
 
   const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div
-        className="custom-tooltip"
-        style={{
-          backgroundColor: "#fff",
-          padding: "10px",
-          border: "1px solid #ccc",
-          color: "#333",
-          fontSize: "12px",
-        }}
-      >
-        <p><strong>{label}</strong></p>
-        {payload.map((item, i) => (
-          <p key={i} style={{ color: item.stroke }}>
-            {item.dataKey}: {item.value?.toFixed(1)}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
+    if (active && payload && payload.length) {
+      return (
+        <div
+          className="custom-tooltip"
+          style={{
+            backgroundColor: "#fff",
+            padding: "10px",
+            border: "1px solid #ccc",
+            color: "#333",
+            fontSize: "12px",
+          }}
+        >
+          <p><strong>{label}</strong></p>
+          {payload.map((item, i) => (
+            <p key={i} style={{ color: item.stroke }}>
+              {item.dataKey}: {item.value?.toFixed(1)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
+  const handleGoToReport = () => {
+    navigate("/report", {
+      state: {
+        course,
+        exam
+      }
+    });
+  };
 
   return (
     <div className="teac-dash-student-container">
@@ -174,7 +166,6 @@ const TeacherDashboard = () => {
                 <YAxis domain={[0, 100]} />
                 <Tooltip content={<CustomTooltip />} />
               </LineChart>
-
             </div>
 
             <div className="teac-dash-chart-box">
@@ -231,15 +222,28 @@ const TeacherDashboard = () => {
                   ))}
                 </div>
               </div>
+
               <div className="teac-dash-feedback-box">
                 <h3>Feedback</h3>
-                <p>
+                <div className="feed-container">
+                   <p>
                   {averageScore >= 85
                     ? "Excellent overall CO performance."
                     : averageScore >= 65
                     ? "Good performance, but some COs can be improved."
                     : "Needs improvement in several COs."}
+                    
                 </p>
+                  <button
+                    className="report-button"
+                    onClick={() => navigate("/report", { state: { course, exam } })}
+                  >
+                    View CO Report
+                  </button>
+
+                </div>
+               
+                
               </div>
             </div>
 

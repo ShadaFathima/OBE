@@ -97,7 +97,7 @@ const StudentPerformance = () => {
                 ></iframe>
               ))
             )}
-            {weakCOs.length === 0 && <p>No videos to show.</p>}
+            {weakCOs.length === 0 && <p>You are good to GO! 🎉 </p>}
           </div>
         </div>
       </div>

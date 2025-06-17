@@ -76,7 +76,10 @@ th {
   margin-top: 40px;
   padding: 20px 0;
 }
-
+h2{
+  text-align: center;
+  margin-bottom: 2rem;
+}
 .chart-section h3 {
   text-align: left;
   margin-bottom: 50px;
@@ -95,4 +98,73 @@ th {
     overflow: visible !important;
     height: auto !important;
   }
+}
+.report-container {
+  padding: 40px;
+  background: #f9f9f9;
+  min-height: 100vh;
+}
+
+.report-bar-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+  text-align: center;
+}
+.report-button {
+  margin: 20px;
+  padding: 10px 20px;
+  font-weight: bold;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.student-graph-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.student-graph-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 320px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.register-number {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+}
+.performance-cell {
+  font-weight: bold;
+}
+
+.performance-Excellent {
+  color: green;
+}
+
+.performance-Good {
+  color: #0000ef;
+}
+
+.performance-Average {
+  color: orange;
+}
+
+.performance-At-Risk {
+  color: #ef0000;
 }

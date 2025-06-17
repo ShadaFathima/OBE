@@ -239,6 +239,24 @@ async def get_all_exam_records_by_student_course(
     )
     return result.scalars().all()
 
+
+async def get_class_co_attainment(db: AsyncSession, course: str, exam: str):
+    query = (
+        select(
+            StudentDetails.register_number,
+            StudentDetails.co1,
+            StudentDetails.co2,
+            StudentDetails.co3,
+            StudentDetails.co4,
+            StudentDetails.co5,
+            StudentDetails.co6,
+        )
+        .where(StudentDetails.course == course)
+        .where(StudentDetails.exam == exam)
+    )
+    result = await db.execute(query)
+    return result.mappings().all()
+    
 # ------------------------ CLASS PERFORMANCE ------------------------
 
 async def get_class_performance(db: AsyncSession, course: str, exam: str):

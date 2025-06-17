@@ -103,6 +103,25 @@ async def get_student_history(register_number: str, course: str, session: AsyncS
     history = result.mappings().all()
     return [dict(row) for row in history]
 
+@router.get("/class/co_attainment/")
+async def get_class_co_attainment(course: str, exam: str, db: AsyncSession = Depends(get_db)):
+    query = (
+        select(
+            crud.StudentDetails.register_number,
+            crud.StudentDetails.co1,
+            crud.StudentDetails.co2,
+            crud.StudentDetails.co3,
+            crud.StudentDetails.co4,
+            crud.StudentDetails.co5,
+            crud.StudentDetails.co6,
+        )
+        .where(crud.StudentDetails.course == course)
+        .where(crud.StudentDetails.exam == exam)
+    )
+    result = await db.execute(query)
+    data = result.mappings().all()
+    return [dict(row) for row in data]
+
 
 
 

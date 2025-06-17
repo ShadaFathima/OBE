@@ -1,211 +1,246 @@
-// COAttainmentReport.jsx
 import React, { useEffect, useState, useRef } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import axios from "axios";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  Line,
-  LineChart,
+  BarChart, Bar, ComposedChart, Line, XAxis, YAxis,
+  CartesianGrid, Tooltip, Cell
 } from "recharts";
+import { useLocation } from "react-router-dom";
 import "./Report.css";
 
+const coGradients = {
+  CO1: "figmaGradient",
+  CO2: "sketchGradient",
+  CO3: "xdGradient",
+  CO4: "psGradient",
+  CO5: "aiGradient",
+  CO6: "co6Gradient",
+};
+
 const Report = () => {
+  const { state } = useLocation();
+  const course = state?.course;
+  const exam = state?.exam;
+
   const [students, setStudents] = useState([]);
+  const [coAverages, setCoAverages] = useState([]);
   const reportRef = useRef();
 
-  const mockStudents = [
-    {
-      name: "Alice",
-      co_scores: [
-        { int: 12, ext: 16, total: 28 },
-        { int: 14, ext: 15, total: 29 },
-        { int: 10, ext: 18, total: 28 },
-        { int: 13, ext: 14, total: 27 },
-        { int: 15, ext: 12, total: 27 },
-        { int: 11, ext: 17, total: 28 },
-      ],
-    },
-    {
-      name: "Joe",
-      co_scores: [
-        { int: 12, ext: 16, total: 28 },
-        { int: 14, ext: 15, total: 29 },
-        { int: 10, ext: 18, total: 28 },
-        { int: 13, ext: 14, total: 27 },
-        { int: 15, ext: 12, total: 27 },
-        { int: 11, ext: 17, total: 28 },
-      ],
-    },
-    {
-      name: "Steve",
-      co_scores: [
-        { int: 12, ext: 16, total: 28 },
-        { int: 14, ext: 15, total: 29 },
-        { int: 10, ext: 18, total: 28 },
-        { int: 13, ext: 14, total: 27 },
-        { int: 15, ext: 12, total: 27 },
-        { int: 11, ext: 17, total: 28 },
-      ],
-    },
-    {
-      name: "Shine",
-      co_scores: [
-        { int: 12, ext: 16, total: 28 },
-        { int: 14, ext: 15, total: 29 },
-        { int: 10, ext: 18, total: 28 },
-        { int: 13, ext: 14, total: 27 },
-        { int: 15, ext: 12, total: 27 },
-        { int: 11, ext: 17, total: 28 },
-      ],
-    },
-    {
-      name: "Bob",
-      co_scores: [
-        { int: 10, ext: 15, total: 25 },
-        { int: 12, ext: 14, total: 26 },
-        { int: 11, ext: 13, total: 24 },
-        { int: 13, ext: 12, total: 25 },
-        { int: 14, ext: 15, total: 29 },
-        { int: 12, ext: 13, total: 25 },
-      ],
-    },
-  ];
-
   useEffect(() => {
-    setStudents(mockStudents);
-  }, []);
+    if (!course || !exam) return;
 
-  const handleDownload = () => {
+    const fetchData = async () => {
+      try {
+        const [classRes, studentRes] = await Promise.all([
+          axios.get("http://localhost:8000/api/class_performance/", { params: { course, exam } }),
+          axios.get("http://localhost:8000/api/class/co_attainment/", { params: { course, exam } }),
+        ]);
+
+        const classData = classRes.data;
+        const studentsRaw = studentRes.data;
+
+        const averages = ["co1_avg", "co2_avg", "co3_avg", "co4_avg", "co5_avg", "co6_avg"]
+          .map((key, i) => ({
+            co: `CO${i + 1}`,
+            average: parseFloat((classData[key] || 0).toFixed(2))
+          }));
+        setCoAverages(averages);
+
+        const detailedStudents = await Promise.all(
+          studentsRaw.map(async (s) => {
+            try {
+              const resultRes = await axios.get(`http://localhost:8000/api/results/${s.register_number}`, {
+                params: { course, exam },
+              });
+              const result = resultRes.data;
+
+              return {
+                name: s.register_number,
+                co_scores: Array.from({ length: 6 }, (_, i) => {
+                  const val = parseFloat((s[`co${i + 1}`] || 0).toFixed(2));
+                  return {
+                    total: val,
+                    int: parseFloat((val * 0.3).toFixed(2)),
+                    ext: parseFloat((val * 0.7).toFixed(2)),
+                  };
+                }),
+                percentage: parseFloat((result.percentage || 0).toFixed(2)),
+                performance: result.performance || "N/A",
+              };
+            } catch (err) {
+              console.error(`Error fetching result for ${s.register_number}`, err);
+              return {
+                name: s.register_number,
+                co_scores: Array.from({ length: 6 }, (_, i) => ({
+                  total: parseFloat((s[`co${i + 1}`] || 0).toFixed(2)),
+                  int: 0,
+                  ext: 0,
+                })),
+                percentage: 0,
+                performance: "N/A",
+              };
+            }
+          })
+        );
+
+        setStudents(detailedStudents);
+      } catch (err) {
+        console.error("Fetch error", err);
+      }
+    };
+
+    fetchData();
+  }, [course, exam]);
+
+  const barData = coAverages.map(a => ({ name: a.co, value: a.average }));
+
+  const handleDownload = async () => {
     const input = reportRef.current;
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("portrait", "pt", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("CO_Attainment_Report.pdf");
-    });
-  };
+    const pdf = new jsPDF("p", "pt", "a4");
+    const padding = 20;
+    const elements = input.querySelectorAll(".pdf-page");
 
-  const coAverages = Array.from({ length: 6 }, (_, i) => {
-    const total = students.reduce((sum, student) => sum + student.co_scores[i].total, 0);
-    const avg = total / students.length;
-    return { co: `CO${i + 1}`, average: parseFloat(avg.toFixed(2)) };
-  });
+    for (let i = 0; i < elements.length; i++) {
+      const canvas = await html2canvas(elements[i], { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth() - 2 * padding;
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      if (i !== 0) pdf.addPage();
+      pdf.addImage(imgData, "PNG", padding, padding, pdfWidth, pdfHeight);
+    }
+
+    pdf.save("CO_Attainment_Report.pdf");
+  };
 
   return (
     <div className="report-container">
-      {/* <h1>Farook College (Autonomous)</h1> */}
-      <div className="report-header">
-        {/* <h2>CO Attainment Report</h2> */}
-        <button className="report-button" onClick={handleDownload}>
-          Download PDF
-        </button>
-      </div>
+      <button className="report-button" onClick={handleDownload}>
+        Download PDF
+      </button>
 
-      <div ref={reportRef} className="report-table">
-              <h1>Farook College (Autonomous)</h1>
-                        <h2>CO Attainment Report</h2>
+      <div ref={reportRef}>
+        <div className="pdf-page" style={{ padding: "40px", backgroundColor: "#fff" }}>
+          <h1>{course}</h1>
+          <h2>CO Attainment Report</h2>
+          <h4>Exam: {exam}</h4>
+          {/* <h4>Student Performance</h4> */}
 
-        <h4><strong>Course:</strong> Sample Course</h4><br/>
-        <h4><em>Average Attainment</em></h4>
-
-        <table>
-          <thead>
-            <tr>
-              <th rowSpan="2">S.No</th>
-              <th rowSpan="2">Student</th>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <th colSpan="3" key={i}>CO{i + 1}</th>
-              ))}
-              <th rowSpan="2">Average</th>
-            </tr>
-            <tr>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <React.Fragment key={i}>
-                  <th>INT</th>
-                  <th>EXT</th>
-                  <th>Total</th>
-                </React.Fragment>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student, index) => {
-              const totalSum = student.co_scores.reduce((sum, co) => sum + co.total, 0);
-              const average = (totalSum / student.co_scores.length).toFixed(2);
-              return (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{student.name}</td>
-                  {student.co_scores.map((co, idx) => (
-                    <React.Fragment key={idx}>
-                      <td>{co.int}</td>
-                      <td>{co.ext}</td>
-                      <td>{co.total}</td>
-                    </React.Fragment>
+          <div className="stud-result-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>SI.NO</th>
+                  <th>REG NO</th>
+                  {[...Array(6)].map((_, i) => (
+                    <th key={i}>CO{i + 1}</th>
                   ))}
-                  <td><strong>{average}</strong></td>
+                  <th>PERCENTAGE</th>
+                  <th>PERFORMANCE</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {students.map((s, i) => (
+                  <tr key={i}>
+                    <td>{i + 1}</td>
+                    <td>{s.name}</td>
+                    {s.co_scores.map((co, j) => (
+                      <td key={j}>{co.total.toFixed(2)}</td>
+                    ))}
+                    <td>{s.percentage.toFixed(2)}</td>
+                   <td className={`performance-cell performance-${s.performance}`}>
+                      {s.performance}
+                    </td>
 
-        {/* ✅ Class-wise Average CO Chart */}
-        <div className="chart-section">
-          <h3>Average CO Attainment of the Class</h3>
-          <ResponsiveContainer width="50%" height={300}>
-            <BarChart data={coAverages}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="co" label={{ value: "Course Outcomes (CO)", position: "insideBottom", offset: -5 }} />
-              <YAxis label={{ value: "Average Attainment", angle: -90, position: "insideLeft" }} domain={[0, 30]} />
-              <Tooltip />
-              <Bar dataKey="average" fill="#e4d5f2" />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="chart-section">
+            <h3>Class CO Averages</h3>
+            <BarChart width={500} height={300} data={barData}>
+              <defs>
+                <linearGradient id="figmaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a0d2eb" />
+                  <stop offset="100%" stopColor="#8979ff" />
+                </linearGradient>
+                <linearGradient id="sketchGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ffbdbd" />
+                  <stop offset="100%" stopColor="#ff8c8c" />
+                </linearGradient>
+                <linearGradient id="xdGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#d1f0ff" />
+                  <stop offset="100%" stopColor="#6ec6ff" />
+                </linearGradient>
+                <linearGradient id="psGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#fff3c4" />
+                  <stop offset="100%" stopColor="#ffd166" />
+                </linearGradient>
+                <linearGradient id="aiGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#bfd7ff" />
+                  <stop offset="100%" stopColor="#80aaff" />
+                </linearGradient>
+                <linearGradient id="co6Gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ffd1dd" />
+                  <stop offset="100%" stopColor="#aa0f80" />
+                </linearGradient>
+              </defs>
+              <Bar dataKey="value">
+                {barData.map((entry, idx) => (
+                  <Cell key={idx} fill={`url(#${coGradients[entry.name]})`} />
+                ))}
+              </Bar>
+              <XAxis dataKey="name" />
+              <YAxis domain={[0, 100]} />
+              <Tooltip formatter={(value) => value.toFixed(2)} />
             </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* ✅ Student-wise CO Attainment Charts */}
-        <div className="chart-section">
-          <h3>Student wise CO Attainment</h3>
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "30px" }}>
-            {students.map((student, index) => {
-              const studentData = student.co_scores.map((co, i) => ({
-                co: `CO${i + 1}`,
-                student: co.total,
-                average: coAverages[i].average,
-              }));
-
-              return (
-                <div key={index} style={{ width: "400px", height: "300px" }}>
-                  <h4 style={{ textAlign: "center", fontSize: "14px", marginBottom: "5px" }}>
-                    Student Wise CO Attainment for {student.name}
-                  </h4>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={studentData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="co" />
-                      <YAxis domain={[0, 30]} />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="average" fill="#e4d5f2" name="Class Average" />
-                      <Bar dataKey="student" fill="#f2789f" name="Student Attainment" />
-                      <Line type="monotone" dataKey="student" stroke="#000" dot />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              );
-            })}
           </div>
         </div>
+
+        {/* Student Graphs, 3 per row */}
+       <div className="stud-graph-container">
+         <h2>Student-Wise CO Performance</h2>
+         {Array.from({ length: Math.ceil(students.length / 3) }, (_, rowIdx) => (
+          
+          <div className="pdf-page" key={rowIdx} style={{ padding: "30px", backgroundColor: "#fff" }}>
+            
+            <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "20px" }}>
+              
+              {students.slice(rowIdx * 3, rowIdx * 3 + 3).map((s, idx) => {
+                const data = s.co_scores.map((co, i) => ({
+                  co: `CO${i + 1}`,
+                  student: co.total,
+                  classAvg: coAverages[i]?.average || 0,
+                }));
+
+                return (
+                  <div key={idx} style={{ flex: "0 0 30%" }}>
+                    
+                    <ComposedChart width={300} height={250} data={data}>
+                      <CartesianGrid stroke="#ccc" />
+                      <XAxis dataKey="co" />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip formatter={(value) => value.toFixed(2)} />
+                      <Bar dataKey="student">
+                        {data.map((entry, barIdx) => (
+                          <Cell key={barIdx} fill={`url(#${coGradients[entry.co]})`} />
+                        ))}
+                      </Bar>
+                      <Line type="monotone" dataKey="classAvg" stroke="#af0000" dot />
+                    </ComposedChart>
+                    <h4 style={{ textAlign: "center" }}>{s.name}</h4>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+       </div>
+        
       </div>
     </div>
   );

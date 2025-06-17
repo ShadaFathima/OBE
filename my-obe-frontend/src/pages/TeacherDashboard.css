@@ -271,3 +271,20 @@ body {
   color: #0b2447;
   border-radius: 20px;
 }
+.feed-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem ;
+}
+.feed-container button{
+  padding: 0.8rem 1rem ;
+  background-color: #0d0d2b;
+  border-radius: 5rem;
+  color: white;
+  border: none;
+}
+.feed-container button:hover{
+  background-color: #1e1e2f;
+  color: #d9d4ff;
+}
