@@ -76,9 +76,9 @@ th {
   margin-top: 40px;
   padding: 20px 0;
 }
-h2{
+.pdf-page h2{
   text-align: center;
-  margin-bottom: 2rem;
+  margin: 1rem;
 }
 .chart-section h3 {
   text-align: left;
@@ -123,7 +123,12 @@ h2{
   border-radius: 8px;
   cursor: pointer;
 }
-
+/* .stud-graph-container{
+  background-color: white;
+}
+.stud-graph-container h2{
+  margin-top: 0%;
+} */
 .student-graph-grid {
   display: flex;
   flex-wrap: wrap;
@@ -139,8 +144,8 @@ h2{
   width: 320px;
   background-color: #f9f9f9;
   padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  /* border-radius: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); */
 }
 
 .register-number {
@@ -167,4 +172,18 @@ h2{
 
 .performance-At-Risk {
   color: #ef0000;
+}
+.pdf-page {
+  margin-bottom: 0px !important;
+  padding: 4rem !important;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  background: #fff;
+}
+
+.chart-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }

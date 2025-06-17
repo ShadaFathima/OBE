@@ -3,6 +3,7 @@ import './StudentExamCourseSelect.css';
 import { MdDashboard } from 'react-icons/md';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import StudentSidebar from '../components/StudentSidebar';
 
 const StudentExamCourseSelect = () => {
   const location = useLocation();
@@ -69,22 +70,7 @@ const StudentExamCourseSelect = () => {
 
   return (
     <div className="secs-container">
-      <div className="secs-sidebar">
-        <h2>TrackMyCO</h2>
-        <ul>
-          <li>
-            <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>
-              <MdDashboard className="secs-icon" /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/studentlogin">
-              <RiLogoutBoxRLine className="secs-icon" /> Logout
-            </NavLink>
-          </li>
-        </ul>
-      </div>
-
+      <StudentSidebar />
       <div className="secs-form">
         <div className="secs-dropdown-wrapper">
           {loading && <p>Loading available courses and exams...</p>}

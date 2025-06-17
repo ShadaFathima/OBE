@@ -127,26 +127,6 @@ const TeacherDashboard = () => {
 
   return (
     <div className="teac-dash-student-container">
-      {/* <div className="teac-dash-sidebar">
-        <h2>TrackMyCO</h2>
-        <ul>
-          <li>
-            <NavLink to="/uploadfirstpage">
-              <RiUpload2Line className="icon" /> Upload
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/teacherexamcourseselect" className="active">
-              <MdDashboard className="icon" /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/teacherlogin">
-              <RiLogoutBoxRLine className="icon" /> Logout
-            </NavLink>
-          </li>
-        </ul>
-      </div> */}
       <TeacherSidebar />
       <div className="teac-dash-main-content">
         <div className="teac-dash-dashboard">

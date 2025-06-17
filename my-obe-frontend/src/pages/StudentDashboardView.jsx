@@ -4,6 +4,7 @@ import { useParams, Link, NavLink } from "react-router-dom";
 import { MdManageAccounts, MdDashboard } from "react-icons/md";
 import { BiBadgeCheck } from "react-icons/bi";
 import { RiLogoutBoxRLine } from "react-icons/ri";
+import StudentSidebar from "../components/StudentSidebar";
 import {
   LineChart,
   Line,
@@ -100,13 +101,13 @@ const StudentDashboardView = () => {
   const strokeDashoffset = ((100 - averageScore) / 100) * circumference;
 
   const lineData = ["CO1", "CO2", "CO3", "CO4", "CO5", "CO6"].map((coLabel, idx) => {
-  const coKey = `co${idx + 1}`;
-  const row = { name: coLabel };
-  historyData.forEach(examItem => {
-    row[examItem.exam] = examItem[coKey] || 0;
+    const coKey = `co${idx + 1}`;
+    const row = { name: coLabel };
+    historyData.forEach(examItem => {
+      row[examItem.exam] = examItem[coKey] || 0;
+    });
+    return row;
   });
-  return row;
-});
 
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -136,61 +137,37 @@ const StudentDashboardView = () => {
 
   return (
     <div className="stud-dash-view-student-container">
-      <div className="stud-dash-view-sidebar">
-        <h2>TrackMyCO</h2>
-        <ul>
-          <li>
-            <NavLink
-              to={`/studentdashboardview/${registerNumber}/${course}/${exam}`}
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <MdDashboard className="stud-dash-view-icon" /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <Link
-              to="/studentperformance"
-              state={{
-                weakCOs: resultData?.weak_cos || [],
-                suggestions: resultData?.suggestions || {},
-                registerNumber,
-              }}
-            >
-              <BiBadgeCheck className="stud-dash-view-icon" /> Enhancement
-            </Link>
-          </li>
-          <li>
-            <Link to="/studentlogin">
-              <RiLogoutBoxRLine className="stud-dash-view-icon" /> Logout
-            </Link>
-          </li>
-        </ul>
-      </div>
+      <StudentSidebar
+        registerNumber={registerNumber}
+        course={course}
+        exam={exam}
+        resultData={resultData}
+      />
 
       <div className="stud-dash-view-main-content">
         <div className="stud-dash-view-dashboard">
           <div className="stud-dash-view-chart-section">
             {lineData.length > 0 && (
-  <div className="stud-dash-view-chart-box">
-    <h3>Exam-wise CO Trend</h3>
-    <LineChart width={450} height={250} data={lineData}>
-      {historyData.map((examItem, index) => (
-        <Line
-          key={index}
-          type="monotone"
-          dataKey={examItem.exam}
-          stroke={["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#00bcd4", "#c2185b"][index % 6]}
-          strokeWidth={1 }
-          dot={{ r: 3 }}
-        />
-      ))}
-      <CartesianGrid stroke="#ccc" />
-      <XAxis dataKey="name" />
-      <YAxis domain={[0, 100]} />
-      <Tooltip content={<CustomTooltip />} />
-    </LineChart>
-  </div>
-)}
+              <div className="stud-dash-view-chart-box">
+                <h3>Exam-wise CO Trend</h3>
+                <LineChart width={450} height={250} data={lineData}>
+                  {historyData.map((examItem, index) => (
+                    <Line
+                      key={index}
+                      type="monotone"
+                      dataKey={examItem.exam}
+                      stroke={["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#00bcd4", "#c2185b"][index % 6]}
+                      strokeWidth={1}
+                      dot={{ r: 3 }}
+                    />
+                  ))}
+                  <CartesianGrid stroke="#ccc" />
+                  <XAxis dataKey="name" />
+                  <YAxis domain={[0, 100]} />
+                  <Tooltip content={<CustomTooltip />} />
+                </LineChart>
+              </div>
+            )}
 
 
             <div className="stud-dash-view-chart-box">

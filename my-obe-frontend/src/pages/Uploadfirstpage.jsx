@@ -16,11 +16,11 @@ const Uploadfirstpage = () => {
 
     return (
         <div className="upload-first-page-container">
-            {/* <div className="upload-first-page-sidebar">
+            <div className="upload-first-page-sidebar">
                 <h2>TrackMyCO</h2>
                 <ul>
                     <li>
-                        <NavLink to="/uploads" className="active">
+                        <NavLink to="/upload" className="active">
                             <RiUpload2Line className="icon" /> Upload
                         </NavLink>
                     </li>
@@ -35,8 +35,7 @@ const Uploadfirstpage = () => {
                         </NavLink>
                     </li>
                 </ul>
-            </div> */}
-            <TeacherSidebar />
+            </div>
 
             <div className="upload-first-page-main-content">
                 <div className="upload-first-page-options-container">

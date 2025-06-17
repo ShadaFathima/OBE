@@ -66,28 +66,7 @@ const Uploading = () => {
 
   return (
     <div className="upload-container">
-      {/* <div className="upload-sidebar">
-        <h2>TrackMyCO</h2>
-        <ul>
-          <li>
-            <NavLink to="/uploadfirstpage" className="active">
-              <RiUpload2Line className="icon" /> Upload
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/teacherexamcourseselect">
-              <MdDashboard className="icon" /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/teacherlogin">
-              <RiLogoutBoxRLine className="icon" /> Logout
-            </NavLink>
-          </li>
-        </ul>
-      </div> */}
       <TeacherSidebar />
-
       <div className="upload-main-content">
         <div className='upload-box'>
           <h3>Upload Student Marks</h3>

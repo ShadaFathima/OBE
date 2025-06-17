@@ -46,39 +46,6 @@ const TeacherExamCourseSelect = () => {
 
   return (
     <div className="tecs-select-container">
-      {/* <div className="tecs-sidebar">
-        <h2 className="tecs-logo">TrackMyCO</h2>
-        <ul className="tecs-nav-items">
-          <li>
-            <NavLink
-              to="/uploadfirstpage"
-              className={({ isActive }) =>
-                isActive ? 'tecs-nav-item active' : 'tecs-nav-item'
-              }
-            >
-              <RiUpload2Line className="icon" />
-              <span>Upload</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/teacherexamcourseselect"
-              className={({ isActive }) =>
-                isActive ? 'tecs-nav-item active' : 'tecs-nav-item'
-              }
-            >
-              <MdDashboard className="icon" />
-              <span>Dashboard</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/logout" className="tecs-nav-item">
-              <RiLogoutBoxRLine className="icon" />
-              <span>Logout</span>
-            </NavLink>
-          </li>
-        </ul>
-      </div> */}
       <TeacherSidebar/>
       <div className="tecs-form-area">
         {loading ? (

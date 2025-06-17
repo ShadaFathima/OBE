@@ -9,15 +9,6 @@ import {
 import { useLocation } from "react-router-dom";
 import "./Report.css";
 
-const coGradients = {
-  CO1: "figmaGradient",
-  CO2: "sketchGradient",
-  CO3: "xdGradient",
-  CO4: "psGradient",
-  CO5: "aiGradient",
-  CO6: "co6Gradient",
-};
-
 const Report = () => {
   const { state } = useLocation();
   const course = state?.course;
@@ -68,8 +59,7 @@ const Report = () => {
                 percentage: parseFloat((result.percentage || 0).toFixed(2)),
                 performance: result.performance || "N/A",
               };
-            } catch (err) {
-              console.error(`Error fetching result for ${s.register_number}`, err);
+            } catch {
               return {
                 name: s.register_number,
                 co_scores: Array.from({ length: 6 }, (_, i) => ({
@@ -96,20 +86,26 @@ const Report = () => {
   const barData = coAverages.map(a => ({ name: a.co, value: a.average }));
 
   const handleDownload = async () => {
-    const input = reportRef.current;
     const pdf = new jsPDF("p", "pt", "a4");
     const padding = 20;
-    const elements = input.querySelectorAll(".pdf-page");
+    const pageWidth = pdf.internal.pageSize.getWidth() - 2 * padding;
 
-    for (let i = 0; i < elements.length; i++) {
-      const canvas = await html2canvas(elements[i], { scale: 2 });
+    const pages = document.querySelectorAll(".pdf-page");
+
+    for (let i = 0; i < pages.length; i++) {
+      const element = pages[i];
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        scrollY: -window.scrollY,
+      });
+
       const imgData = canvas.toDataURL("image/png");
       const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth() - 2 * padding;
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
 
       if (i !== 0) pdf.addPage();
-      pdf.addImage(imgData, "PNG", padding, padding, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, "PNG", padding, padding, pageWidth, pdfHeight);
     }
 
     pdf.save("CO_Attainment_Report.pdf");
@@ -122,14 +118,14 @@ const Report = () => {
       </button>
 
       <div ref={reportRef}>
+        {/* Overview Page */}
         <div className="pdf-page" style={{ padding: "40px", backgroundColor: "#fff" }}>
           <h1>{course}</h1>
           <h2>CO Attainment Report</h2>
           <h4>Exam: {exam}</h4>
-          {/* <h4>Student Performance</h4> */}
 
-          <div className="stud-result-table">
-            <table>
+          <div className="stud-result-table" style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th>SI.NO</th>
@@ -150,40 +146,19 @@ const Report = () => {
                       <td key={j}>{co.total.toFixed(2)}</td>
                     ))}
                     <td>{s.percentage.toFixed(2)}</td>
-                   <td className={`performance-cell performance-${s.performance}`}>
+                    <td className={`performance-cell performance-${s.performance}`}>
                       {s.performance}
                     </td>
-
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
+          <h1 style={{ textAlign: "center", marginTop: "5rem", fontSize: '32px' }}>Class CO Averages</h1>
           <div className="chart-section">
-            <h3>Class CO Averages</h3>
-            <BarChart width={500} height={300} data={barData}>
+            <BarChart width={600} height={400} data={barData}>
               <defs>
-                <linearGradient id="figmaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#a0d2eb" />
-                  <stop offset="100%" stopColor="#8979ff" />
-                </linearGradient>
-                <linearGradient id="sketchGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ffbdbd" />
-                  <stop offset="100%" stopColor="#ff8c8c" />
-                </linearGradient>
-                <linearGradient id="xdGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#d1f0ff" />
-                  <stop offset="100%" stopColor="#6ec6ff" />
-                </linearGradient>
-                <linearGradient id="psGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#fff3c4" />
-                  <stop offset="100%" stopColor="#ffd166" />
-                </linearGradient>
-                <linearGradient id="aiGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#bfd7ff" />
-                  <stop offset="100%" stopColor="#80aaff" />
-                </linearGradient>
                 <linearGradient id="co6Gradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ffd1dd" />
                   <stop offset="100%" stopColor="#aa0f80" />
@@ -191,7 +166,7 @@ const Report = () => {
               </defs>
               <Bar dataKey="value">
                 {barData.map((entry, idx) => (
-                  <Cell key={idx} fill={`url(#${coGradients[entry.name]})`} />
+                  <Cell key={idx} fill="url(#co6Gradient)" />
                 ))}
               </Bar>
               <XAxis dataKey="name" />
@@ -201,46 +176,58 @@ const Report = () => {
           </div>
         </div>
 
-        {/* Student Graphs, 3 per row */}
-       <div className="stud-graph-container">
-         <h2>Student-Wise CO Performance</h2>
-         {Array.from({ length: Math.ceil(students.length / 3) }, (_, rowIdx) => (
-          
-          <div className="pdf-page" key={rowIdx} style={{ padding: "30px", backgroundColor: "#fff" }}>
-            
-            <div style={{ display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: "20px" }}>
-              
-              {students.slice(rowIdx * 3, rowIdx * 3 + 3).map((s, idx) => {
-                const data = s.co_scores.map((co, i) => ({
-                  co: `CO${i + 1}`,
-                  student: co.total,
-                  classAvg: coAverages[i]?.average || 0,
-                }));
 
-                return (
-                  <div key={idx} style={{ flex: "0 0 30%" }}>
-                    
-                    <ComposedChart width={300} height={250} data={data}>
-                      <CartesianGrid stroke="#ccc" />
-                      <XAxis dataKey="co" />
-                      <YAxis domain={[0, 100]} />
-                      <Tooltip formatter={(value) => value.toFixed(2)} />
-                      <Bar dataKey="student">
-                        {data.map((entry, barIdx) => (
-                          <Cell key={barIdx} fill={`url(#${coGradients[entry.co]})`} />
-                        ))}
-                      </Bar>
-                      <Line type="monotone" dataKey="classAvg" stroke="#af0000" dot />
-                    </ComposedChart>
-                    <h4 style={{ textAlign: "center" }}>{s.name}</h4>
-                  </div>
-                );
-              })}
+        {/* Per-Student Graphs - 12 per page */}
+        <div className="stud-graph-container">
+
+          {Array.from({ length: Math.ceil(students.length / 18) }, (_, pageIdx) => (
+            <div className="pdf-page" key={pageIdx} style={{ padding: "30px", backgroundColor: "#fff" }}>
+              <h2 style={{ textAlign: "center", backgroundColor: 'white' , marginBottom:'5rem',fontSize:'32px' }}>
+            Student-Wise CO Performance
+          </h2>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "space-between",
+                  gap: "15px",
+                }}
+              >
+                {students.slice(pageIdx * 18, pageIdx * 18 + 18).map((s, idx) => {
+                  const data = s.co_scores.map((co, i) => ({
+                    co: `CO${i + 1}`,
+                    student: co.total,
+                    classAvg: coAverages[i]?.average || 0,
+                  }));
+
+                  return (
+                    <div key={idx} style={{ flex: "0 0 30%" }}>
+                      <ComposedChart width={350} height={280} data={data}>
+                        <defs>
+                          <linearGradient id="co6Gradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffd1dd" />
+                            <stop offset="100%" stopColor="#aa0f80" />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid stroke="#ccc" />
+                        <XAxis dataKey="co" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip formatter={(value) => value.toFixed(2)} />
+                        <Bar dataKey="student">
+                          {data.map((_, barIdx) => (
+                            <Cell key={barIdx} fill="url(#co6Gradient)" />
+                          ))}
+                        </Bar>
+                        <Line type="monotone" dataKey="classAvg" stroke="#af0000" dot />
+                      </ComposedChart>
+                      <h4 style={{ textAlign: "center", fontSize: "12px", marginTop: "4px" }}>{s.name}</h4>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-       </div>
-        
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,110 @@
+/* Sidebar container */
+.stud-dash-view-sidebar {
+  width: 235px;
+  background-color: #0d0d2b;
+  padding: 2rem;
+  color: white;
+  border-radius: 1.3rem;
+  margin: 1.5rem;
+}
+
+/* Sidebar heading */
+.stud-dash-view-sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+  text-align: center;
+  color: #ffffff;
+}
+
+/* Sidebar link styles */
+.stud-dash-view-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.stud-dash-view-sidebar ul li {
+  margin-bottom: 20px;
+}
+
+.stud-dash-view-sidebar ul li a,
+.stud-dash-view-sidebar ul li button.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  width: 100%;
+  text-align: left;
+}
+
+/* Hover & Active styles */
+.stud-dash-view-sidebar ul li a:hover,
+.stud-dash-view-sidebar ul li button.logout-btn:hover,
+.stud-dash-view-sidebar .active {
+  background-color: #ffffff;
+  color: #0d0d2b;
+}
+
+.stud-dash-view-icon {
+  font-size: 20px;
+}
+
+/* Confirmation Modal Styles */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.confirm-modal {
+  background: #fff;
+  padding: 2rem 3rem;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.confirm-modal p {
+  font-size: 18px;
+  margin-bottom: 1.5rem;
+  color: #1e1e2f;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+}
+
+.yes-btn,
+.no-btn {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.yes-btn {
+  background-color: #aa1111;
+  color: white;
+}
+
+.no-btn {
+  background-color: #e0e0e0;
+  color: #333;
+}
